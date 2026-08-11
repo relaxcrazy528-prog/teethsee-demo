@@ -95,7 +95,23 @@ assert.doesNotMatch(
 assert.doesNotMatch(html, /\bfetch\s*\(/, "离线 Demo 不应发起网络请求");
 assert.doesNotMatch(html, /\beval\s*\(|new\s+Function\s*\(/, "页面不应执行动态代码");
 assert.doesNotMatch(html, /innerHTML|insertAdjacentHTML/, "用户内容不得通过不安全 HTML 注入");
-assert.doesNotMatch(html, /localStorage|sessionStorage/, "口腔照片和报告不得写入浏览器普通存储");
+assert.doesNotMatch(html, /sessionStorage/, "口腔照片和报告不得写入会话存储");
+assert.match(
+  html,
+  /const LANGUAGE_STORAGE_KEY = "teethsee\.language"/,
+  "语言偏好必须使用独立且固定的非敏感存储键",
+);
+const localStorageCalls = [
+  ...html.matchAll(/localStorage\.(getItem|setItem)\(([^)]*)\)/g),
+];
+assert.equal(localStorageCalls.length, 2, "浏览器存储只能用于读取和保存语言偏好");
+for (const [, method, argumentsText] of localStorageCalls) {
+  assert.match(
+    argumentsText,
+    /^LANGUAGE_STORAGE_KEY(?:,\s*language)?$/,
+    `${method} 不得用于保存照片、报告、聊天或用户档案`,
+  );
+}
 assert.doesNotMatch(
   html,
   /\b(?:api[_-]?key|authorization)\b\s*[:=]|\bsk-[A-Za-z0-9_-]{12,}/i,

@@ -383,6 +383,35 @@
         gap: 10px;
       }
 
+      .language-switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        padding: 3px;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.82);
+      }
+
+      .language-option {
+        min-width: 42px;
+        min-height: 28px;
+        padding: 4px 9px;
+        color: var(--muted);
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        font-size: 11px;
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      .language-option[aria-pressed="true"] {
+        color: #fff;
+        background: var(--brand);
+        box-shadow: 0 4px 10px rgba(46, 111, 104, 0.18);
+      }
+
       .privacy-pill,
       .demo-pill {
         display: inline-flex;
@@ -3084,6 +3113,17 @@
           gap: 7px;
         }
 
+        .language-switch {
+          padding: 2px;
+        }
+
+        .language-option {
+          min-width: 34px;
+          min-height: 26px;
+          padding: 3px 7px;
+          font-size: 10px;
+        }
+
         .demo-pill {
           min-height: 30px;
           padding: 6px 8px;
@@ -4210,6 +4250,24 @@
             <strong id="page-location-title">首页</strong>
           </div>
           <div class="top-actions">
+            <div class="language-switch" role="group" aria-label="Language / 语言" data-i18n-ignore>
+              <button
+                class="language-option"
+                type="button"
+                data-language="zh-CN"
+                aria-pressed="true"
+              >
+                中文
+              </button>
+              <button
+                class="language-option"
+                type="button"
+                data-language="en"
+                aria-pressed="false"
+              >
+                EN
+              </button>
+            </div>
             <span class="privacy-pill">照片仅在本机处理</span>
             <span class="demo-pill">DEMO DATA · 模拟结果</span>
             <button class="profile-top-button" type="button" data-go-view="profile" aria-label="打开 Emma 的个人页面">
@@ -4496,11 +4554,11 @@
                   <div class="field">
                     <label for="region-select">区域</label>
                     <select id="region-select">
-                      <option>咬合面</option>
-                      <option>颊侧面</option>
-                      <option>舌侧面</option>
-                      <option>牙龈边缘</option>
-                      <option>牙缝区域</option>
+                      <option value="咬合面">咬合面</option>
+                      <option value="颊侧面">颊侧面</option>
+                      <option value="舌侧面">舌侧面</option>
+                      <option value="牙龈边缘">牙龈边缘</option>
+                      <option value="牙缝区域">牙缝区域</option>
                     </select>
                   </div>
                 </div>
@@ -5185,6 +5243,711 @@
       const MAX_FILE_SIZE = 10 * 1024 * 1024;
       const MAX_IMAGE_PIXELS = 25_000_000;
       const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+      const LANGUAGE_STORAGE_KEY = "teethsee.language";
+      const SUPPORTED_LANGUAGES = new Set(["zh-CN", "en"]);
+      const ORIGINAL_TEXT = new WeakMap();
+      const ORIGINAL_ATTRIBUTES = new WeakMap();
+      const TRANSLATABLE_ATTRIBUTES = ["aria-label", "title", "placeholder", "alt"];
+      let currentLanguage = "zh-CN";
+      let i18nObserver = null;
+
+      const EN_TEXT = new Map([
+        ["智能可视冲牙器", "Smart visual water flosser"],
+        ["主导航", "Main navigation"],
+        ["移动端主导航", "Mobile navigation"],
+        ["首页", "Home"],
+        ["档案", "Records"],
+        ["扫描牙齿", "Scan teeth"],
+        ["扫描", "Scan"],
+        ["日历", "Calendar"],
+        ["咨询", "Consult"],
+        ["我的", "Me"],
+        ["设置", "Settings"],
+        ["返回首页", "Back to Home"],
+        ["‹ 首页", "‹ Home"],
+        ["Emma 的牙齿档案", "Emma's dental record"],
+        ["Emma 的牙齿地图", "Emma's tooth map"],
+        ["Emma 的偏好", "Emma's preferences"],
+        ["Emma（本人）", "Emma (me)"],
+        ["当前家庭档案", "Current family profile"],
+        ["当前使用", "In use"],
+        ["家庭", "Family"],
+        ["家庭档案", "Family profiles"],
+        ["谁在使用？", "Who's using it?"],
+        ["添加家庭成员", "Add family member"],
+        ["每位家庭成员都有独立的牙齿地图和历史记录。", "Each family member has a separate tooth map and history."],
+        ["最近扫描：今天", "Last scan: today"],
+        ["最近扫描：1 周前", "Last scan: 1 week ago"],
+        ["尚未扫描", "Not scanned yet"],
+        ["打开 Emma 的个人页面", "Open Emma's profile"],
+        ["照片仅在本机处理", "Photos processed locally"],
+        ["DEMO DATA · 模拟结果", "DEMO DATA · Simulated result"],
+        ["模拟结果", "Simulated result"],
+        ["模拟结果 · DEMO DATA", "Simulated result · DEMO DATA"],
+        ["早上好，Emma", "Good morning, Emma"],
+        ["已连续使用 12 天", "12-day usage streak"],
+        ["继续保持——这周你已经连续冲牙 5 天了。", "Keep it up — you have flossed for 5 consecutive days this week."],
+        ["从档案选择照片", "Choose from records"],
+        ["从档案选择", "Choose from records"],
+        ["从本机选择", "Choose from device"],
+        ["扫描我的牙齿", "Scan my teeth"],
+        ["本周清洁记录", "This week's cleaning"],
+        ["本周清洁次数", "Weekly cleaning count"],
+        ["5 次清洁 · 连续 5 天", "5 cleanings · 5-day streak"],
+        ["暂停提醒", "Pause reminders"],
+        ["恢复提醒", "Resume reminders"],
+        ["今天", "Today"],
+        ["昨天", "Yesterday"],
+        ["一", "Mon"],
+        ["二", "Tue"],
+        ["三", "Wed"],
+        ["四", "Thu"],
+        ["五", "Fri"],
+        ["六", "Sat"],
+        ["日", "Sun"],
+        ["设备", "Device"],
+        ["智能冲牙器", "Smart water flosser"],
+        ["冲牙器样机", "Water flosser prototype"],
+        ["设备未连接", "Device not connected"],
+        ["USB 与 Wi‑Fi 均未连接", "USB and Wi-Fi are disconnected"],
+        ["连接 USB", "Connect USB"],
+        ["断开 USB", "Disconnect USB"],
+        ["连接 Wi‑Fi", "Connect Wi-Fi"],
+        ["断开 Wi‑Fi", "Disconnect Wi-Fi"],
+        ["你的牙齿地图", "Your tooth map"],
+        ["有 2 个区域需要留意", "2 areas need attention"],
+        ["2 处待观察", "2 areas to monitor"],
+        ["建档覆盖", "Profile coverage"],
+        ["继续建立档案", "Continue setup"],
+        ["演示自动建档", "Demo auto-mapping"],
+        ["查看完整牙位图", "View complete tooth map"],
+        ["最新报告", "Latest report"],
+        ["今天 7:42", "Today 7:42"],
+        ["查看档案 →", "View records →"],
+        ["右上牙龈线附近可见黄褐色附着", "Yellow-brown buildup visible near the upper-right gumline"],
+        ["中等可信度", "Medium confidence"],
+        ["AI 报告", "AI report"],
+        ["AI 报告 · 模拟结果", "AI report · Simulated result"],
+        ["医师", "Dentist"],
+        ["医师回复", "Dentist reply"],
+        ["医师已回复", "Dentist replied"],
+        ["医院确认", "Clinic confirmed"],
+        ["设备记录", "Device record"],
+        ["设备自动记录", "Automatically recorded by device"],
+        ["完成一次可视清洁", "Completed a visual cleaning"],
+        ["完成清洁记录", "Complete cleaning record"],
+        ["待跟进", "Follow-up"],
+        ["右上磨牙 · 16 号牙", "Upper-right molar · Tooth 16"],
+        ["陈医生要求补拍一张更靠近咬合面的照片。", "Dr. Chen requested another photo closer to the occlusal surface."],
+        ["继续这个对话", "Continue this conversation"],
+        ["清洁提醒", "Cleaning reminder"],
+        ["今晚 22:00", "Tonight at 22:00"],
+        ["距上次清洁记录已经 18 小时。", "It has been 18 hours since your last recorded cleaning."],
+        ["稍后提醒", "Remind me later"],
+        ["冲牙中", "Flossing"],
+        ["继续冲牙就好", "Keep flossing"],
+        ["角度和光线合适时自动拍摄，也可以手动拍摄或从档案选择照片。", "Photos are captured automatically when angle and lighting are suitable. You can also capture manually or choose from records."],
+        ["实时口腔画面", "Live oral view"],
+        ["等待设备或照片", "Waiting for a device or photo"],
+        ["连接设备后开始冲牙", "Connect a device to begin"],
+        ["只有足够清晰的影像才会进入分析。", "Only sufficiently clear images proceed to analysis."],
+        ["USB 口腔摄像头实时画面", "Live USB oral camera view"],
+        ["上传的口腔照片", "Uploaded oral photo"],
+        ["USB 摄像头来源", "USB camera source"],
+        ["点击“连接 USB 摄像头”授权后选择", "Authorize the USB camera, then select it here"],
+        ["支持被电脑识别为摄像头的 USB 设备；首次连接会请求相机权限。", "Supports USB devices recognized as cameras. Camera permission is requested on first use."],
+        ["刷新设备", "Refresh devices"],
+        ["正在检查摄像头环境", "Checking camera environment"],
+        ["请保持 USB 设备已连接并供电。", "Keep the USB device connected and powered."],
+        ["设备模式 · 画面未开始", "Device mode · Video not started"],
+        ["返回实时画面", "Return to live view"],
+        ["手动拍摄", "Capture photo"],
+        ["牙位", "Tooth"],
+        ["区域", "Area"],
+        ["咬合面", "Occlusal surface"],
+        ["颊侧面", "Buccal surface"],
+        ["舌侧面", "Lingual surface"],
+        ["牙龈边缘", "Gumline"],
+        ["牙缝区域", "Interdental area"],
+        ["暂时不确定", "Not sure yet"],
+        ["保存前确认", "Confirm before saving"],
+        ["拍摄后确认牙位与区域，照片才会归入对应档案。", "Confirm the tooth and area after capture so the photo is filed correctly."],
+        ["确认牙位与区域", "Confirm tooth and area"],
+        ["牙位与区域", "Tooth and area"],
+        ["牙位与区域已确认", "Tooth and area confirmed"],
+        ["已确认", "Confirmed"],
+        ["AI 已自动定位，请确认候选位置", "AI suggested a location — please confirm"],
+        ["等待口腔照片", "Waiting for an oral photo"],
+        ["拍摄或选择照片后，我们会先检查清晰度与光线。", "After capture or selection, we first check clarity and lighting."],
+        ["正在分析你的照片", "Analyzing your photo"],
+        ["检查图片清晰度与光线", "Checking image clarity and lighting"],
+        ["定位牙齿并匹配历史区域", "Locating the tooth and matching prior areas"],
+        ["绑定证据并生成初步报告", "Linking evidence and generating a preliminary report"],
+        ["图片质量", "Image quality"],
+        ["可见表现", "Visible findings"],
+        ["我们发现了什么", "What we found"],
+        ["证据链", "Evidence trail"],
+        ["建议下一步", "Recommended next steps"],
+        ["保存至档案", "Save to records"],
+        ["保存待重拍记录", "Save reshoot record"],
+        ["咨询牙医", "Ask a dentist"],
+        ["打印报告", "Print report"],
+        ["演示可信程度", "Demo confidence"],
+        ["较高", "High"],
+        ["无法判断", "Unable to assess"],
+        ["等待生成", "Waiting to generate"],
+        ["这是由预设规则生成的模拟初筛报告，每项判断均绑定证据 ID；不是真实 AI 图像识别结果，也不构成医学确诊。最终确诊由口腔医师完成。", "This simulated screening report is generated by preset rules and links every finding to evidence IDs. It is not real AI image recognition or a medical diagnosis. Final diagnosis must be made by a dental professional."],
+        ["你的牙齿变化记录", "Your dental history"],
+        ["每颗牙齿都有独立的长期记录", "Each tooth has its own long-term record"],
+        ["点击任意一颗牙齿查看照片、AI 报告、就医与复诊历史。", "Select any tooth to view photos, AI reports, visits, and follow-up history."],
+        ["上颌", "Upper jaw"],
+        ["下颌", "Lower jaw"],
+        ["上颌牙齿", "Upper teeth"],
+        ["下颌牙齿", "Lower teeth"],
+        ["当前牙齿", "Current tooth"],
+        ["同牙历史照片", "Photos of this tooth"],
+        ["事件", "Events"],
+        ["待复查", "Follow-ups"],
+        ["天然牙", "Natural tooth"],
+        ["牙冠修复体", "Dental crown"],
+        ["已建立身份", "Identity established"],
+        ["待建档", "Not mapped"],
+        ["需要关注", "Needs attention"],
+        ["缺失牙", "Missing tooth"],
+        ["跨期稳定", "Stable over time"],
+        ["证据不足", "Insufficient evidence"],
+        ["牙齿时间线", "Tooth timeline"],
+        ["同牙同区域 · 跨期对比", "Same tooth and area · Longitudinal comparison"],
+        ["较早记录", "Earlier record"],
+        ["当前周期", "Current period"],
+        ["系统只比较已经确认属于同一牙齿、同一区域的证据。", "The system compares only evidence confirmed to be from the same tooth and area."],
+        ["✓ 已扣除设备漂移", "✓ Device drift corrected"],
+        ["六个月档案摘要", "Six-month record summary"],
+        ["按时间序列整理，每条结果均绑定证据", "Organized chronologically, with every result linked to evidence"],
+        ["问自己的牙齿档案", "Ask about your dental record"],
+        ["选择一颗牙后，可以询问它最近的变化、证据是否充足，以及系统为什么得出当前判断。", "Select a tooth to ask about recent changes, evidence sufficiency, and why the system reached its current assessment."],
+        ["回答只读取当前牙齿已归档的证据", "Answers use only archived evidence for the selected tooth"],
+        ["查询档案", "Search records"],
+        ["输入追问内容", "Enter a follow-up question"],
+        ["请输入想查询的牙齿或时间范围", "Enter a tooth or time range to search"],
+        ["按日期查看历史", "Browse history by date"],
+        ["按来源保留完整过程", "Full history preserved by source"],
+        ["按记录来源筛选清洁、拍摄、AI 报告与医师回复。", "Filter cleaning, captures, AI reports, and dentist replies by source."],
+        ["上个月", "Previous month"],
+        ["下个月", "Next month"],
+        ["来源筛选", "Source filter"],
+        ["全部", "All"],
+        ["用户记录", "User record"],
+        ["清洁记录", "Cleaning record"],
+        ["拍摄", "Capture"],
+        ["复诊", "Follow-up"],
+        ["单一事件", "Single event"],
+        ["照片、AI 报告、追问和医师回复始终属于同一个事件。", "Photos, AI reports, follow-up questions, and dentist replies always stay in the same event."],
+        ["事件对话", "Event conversation"],
+        ["演示历史事件 · 医师已回复", "Demo history event · Dentist replied"],
+        ["仅分享当前事件", "Share current event only"],
+        ["医师只能看到当前事件及你主动选择的历史资料。AI 记录与医院确认记录保持来源区分。", "The dentist can see only this event and history you explicitly select. AI and clinic-confirmed records remain clearly separated."],
+        ["分享给医师的内容", "Content shared with the dentist"],
+        ["当前原始照片", "Current original photo"],
+        ["AI 观察记录", "AI observation"],
+        ["已包含", "Included"],
+        ["提交给医师查看", "Send to dentist"],
+        ["确认牙位后可提交", "Confirm the tooth before sending"],
+        ["等待医师", "Waiting for dentist"],
+        ["已提交给医师", "Sent to dentist"],
+        ["继续追问或补充说明…", "Ask a follow-up or add details…"],
+        ["发送", "Send"],
+        ["我", "Me"],
+        ["刚刚", "Just now"],
+        ["河畔牙科诊所", "Riverside Dental Clinic"],
+        ["陈医生", "Dr. Chen"],
+        ["陈医生 · 河畔牙科诊所", "Dr. Chen · Riverside Dental Clinic"],
+        ["资料已收到。我会先查看当前照片和 AI 报告，如需补拍会继续在这个事件中回复。", "Your materials have been received. I will review the current photo and AI report and request another photo in this event if needed."],
+        ["谁在使用？", "Who's using it?"],
+        ["牙列识别", "Dental arch recognition"],
+        ["自动识别当前牙位", "Automatically identify the current tooth"],
+        ["已开启", "On"],
+        ["识别结果会在归档前请你确认，不会直接覆盖已有牙位记录。", "Recognition results require confirmation before filing and never overwrite existing tooth records."],
+        ["通知", "Notifications"],
+        ["提醒与报告推送", "Reminder and report notifications"],
+        ["每天 22:00 提醒一次，静默时段为 23:00—08:00。", "One reminder daily at 22:00, with quiet hours from 23:00 to 08:00."],
+        ["数据与隐私", "Data & privacy"],
+        ["管理存储与分享内容", "Manage storage and sharing"],
+        ["当前 Demo 的照片只在浏览器会话中处理；分享内容按事件逐一确认。", "Demo photos are processed only in this browser session. Shared content is confirmed event by event."],
+        ["导出我的记录", "Export my records"],
+        ["照片、报告与备注", "Photos, reports, and notes"],
+        ["正式版本可将照片、报告和备注整理为一个可下载的档案包。", "The production version can package photos, reports, and notes into a downloadable archive."],
+        ["当前使用合成样例数据演示完整档案流程，演示数据始终保留标记。", "This demo uses synthetic sample data to show the complete record workflow. Demo data always remains labeled."],
+        ["从个人档案库上传", "Upload from personal records"],
+        ["选择一张已保存的口腔照片，再上传给 AI 生成模拟初筛报告；预置样张均标记为 DEMO DATA。", "Choose a saved oral photo and upload it to generate a simulated AI screening report. Preset samples are labeled DEMO DATA."],
+        ["个人档案库", "Personal photo library"],
+        ["个人档案 · 演示样张库", "Personal records · Demo photo library"],
+        ["选择个人档案照片", "Choose a personal record photo"],
+        ["演示照片只在当前页面中处理，不会发送到网络或写入浏览器存储。", "Demo photos are processed only on this page. They are not sent over the network or stored in the browser."],
+        ["选择照片后上传给 AI", "Select a photo to upload to AI"],
+        ["上传给 AI 分析", "Upload for AI analysis"],
+        ["照片详情", "Photo details"],
+        ["档案照片", "Record photo"],
+        ["删除这张照片", "Delete this photo"],
+        ["关闭", "Close"],
+        ["关闭上传窗口", "Close upload window"],
+        ["关闭照片查看", "Close photo viewer"],
+        ["查看", "View"],
+        ["删除", "Delete"],
+        ["档案库暂无照片。上传并保存报告后，照片会显示在这里。", "No photos in the library yet. Photos appear here after upload and report saving."],
+        ["暂无可上传照片，请从本机选择。", "No saved photos are available. Choose one from your device."],
+        ["查看、上传或删除已保存照片；新增记录仅保留在当前演示会话。", "View, upload, or delete saved photos. New records remain only in this demo session."],
+        ["自动建档进行中", "Auto-mapping in progress"],
+        ["DEMO DATA · 自动建档模拟", "DEMO DATA · Auto-mapping simulation"],
+        ["结束", "Exit"],
+        ["结束自动建档演示", "End auto-mapping demo"],
+        ["疑似牙结石附着，建议由医师进一步确认", "Possible tartar buildup — dental review recommended"],
+        ["疑似蛀牙，需要医师进一步确认", "Possible tooth decay — dental review required"],
+        ["疑似牙龈炎症并伴局部肿胀", "Possible gingival inflammation with localized swelling"],
+        ["照片质量不足，请重新拍摄", "Image quality is insufficient — please retake"],
+        ["颜色与质地", "Color and texture"],
+        ["位置关系", "Location pattern"],
+        ["质量限制", "Image limitations"],
+        ["局部颜色", "Localized color"],
+        ["边界差异", "Boundary contrast"],
+        ["牙龈颜色", "Gum color"],
+        ["轮廓变化", "Contour change"],
+        ["质量门", "Quality gate"],
+        ["安全停止", "Safe stop"],
+        ["保留缺口", "Evidence gap retained"],
+        ["黄褐色附着与邻近牙面存在稳定差异", "Yellow-brown buildup differs consistently from the adjacent tooth surface"],
+        ["附着集中在牙颈部与邻近牙缝区域", "Buildup is concentrated near the tooth neck and adjacent interdental area"],
+        ["照片不能呈现龈下范围，需口腔检查确认", "The photo cannot show the subgingival extent; an oral examination is needed"],
+        ["牙面存在相对集中的深色区域", "A localized dark area is visible on the tooth surface"],
+        ["该区域与周围牙面颜色存在明显差异", "The area differs clearly in color from the surrounding tooth surface"],
+        ["照片无法确认深度或是否形成龋洞", "The photo cannot confirm depth or cavity formation"],
+        ["局部牙龈边缘较周围组织偏红", "The local gumline appears redder than surrounding tissue"],
+        ["牙龈轮廓较饱满并呈现局部肿胀", "The gingival contour appears fuller with localized swelling"],
+        ["单张照片无法确认炎症范围", "A single photo cannot confirm the extent of inflammation"],
+        ["清晰度、光线、尺寸或遮挡未达到分析条件", "Clarity, lighting, dimensions, or visibility did not meet analysis requirements"],
+        ["质量门未通过后不运行疾病类别规则", "Disease-category rules are not run when the quality gate fails"],
+        ["本次失败仍记录为待补拍证据", "This failed attempt remains recorded as evidence requiring a retake"],
+        ["牙龈边缘可见较固定的黄褐色附着，与周围牙面颜色和质地存在明显差异。", "Fixed yellow-brown buildup is visible along the gumline and differs from the surrounding tooth surface in color and texture."],
+        ["附着主要集中在牙颈部及邻近牙缝区域，外观符合牙结石的常见可视表现。", "The buildup is concentrated near the tooth neck and adjacent interdental area, matching common visible features of tartar."],
+        ["当前照片不能确认龈下范围，也不能替代口腔检查和牙周探诊。", "This photo cannot confirm subgingival extent and cannot replace an oral examination or periodontal probing."],
+        ["牙齿表面可见一处相对集中的深色区域。", "A localized dark area is visible on the tooth surface."],
+        ["该区域与周围牙面颜色存在明显差异。", "The area differs clearly in color from the surrounding tooth surface."],
+        ["当前照片无法确认病变深度或是否已经形成龋洞。", "The photo cannot confirm lesion depth or whether a cavity has formed."],
+        ["牙龈边缘可见偏红区域，与周围颜色存在差异。", "A reddened area is visible along the gumline and differs from surrounding tissue."],
+        ["局部牙龈轮廓较饱满，呈现肿胀表现。", "The local gingival contour appears fuller and swollen."],
+        ["照片不能确认炎症范围，也不能替代牙周探诊。", "The photo cannot confirm the extent of inflammation or replace periodontal probing."],
+        ["当前照片的清晰度、光线或尺寸不足，无法可靠完成疾病初筛。", "The photo lacks sufficient clarity, lighting, or size for a reliable preliminary screening."],
+        ["系统不会根据这张照片输出蛀牙或牙龈炎症类别。", "The system will not classify tooth decay or gingival inflammation from this photo."],
+        ["保留原图后可重新拍摄，并继续使用同一个事件。", "Keep the original and retake the photo within the same event."],
+        ["保留当前照片，后续可按同一牙齿与角度补拍，用于观察区域变化。", "Keep this photo and retake the same tooth from the same angle to monitor area changes."],
+        ["建议预约口腔医师检查，并由专业人员判断是否需要洁治处理。", "Book a dental examination so a professional can determine whether cleaning treatment is needed."],
+        ["请勿自行使用尖锐工具刮除；若伴随持续出血、疼痛或肿胀，应及时就医。", "Do not scrape with sharp tools. Seek care promptly for persistent bleeding, pain, or swelling."],
+        ["保留当前照片，并补拍一张更近的同角度照片。", "Keep this photo and take a closer photo from the same angle."],
+        ["将本事件交给口腔医师，由医师结合检查完成最终确诊。", "Share this event with a dentist for examination and final diagnosis."],
+        ["若伴随持续疼痛、冷热敏感或咬合痛，应尽快就医。", "Seek dental care promptly for persistent pain, temperature sensitivity, or pain when biting."],
+        ["补拍牙龈边缘与牙缝区域，注意避开镜面反光。", "Retake the gumline and interdental area while avoiding glare."],
+        ["将照片与本次 AI 报告交由口腔医师进一步确认。", "Share the photo and AI report with a dentist for further review."],
+        ["若出现持续出血、流脓、明显疼痛或面部肿胀，应及时就医。", "Seek prompt care for persistent bleeding, pus, severe pain, or facial swelling."],
+        ["擦拭镜头并保持画面稳定，让牙齿区域占据画面中央。", "Clean the lens, keep the image steady, and center the tooth area."],
+        ["调整光线和角度，避开明显反光、水滴或大面积阴影。", "Adjust lighting and angle to avoid glare, droplets, or large shadows."],
+        ["重新上传清晰照片后再进行 AI 初筛。", "Upload a clearer photo before running AI screening again."],
+        ["右上第三磨牙", "Upper-right third molar"],
+        ["右上第二磨牙", "Upper-right second molar"],
+        ["右上第一磨牙", "Upper-right first molar"],
+        ["右上第二前磨牙", "Upper-right second premolar"],
+        ["右上第一前磨牙", "Upper-right first premolar"],
+        ["右上尖牙", "Upper-right canine"],
+        ["右上侧切牙", "Upper-right lateral incisor"],
+        ["右上中切牙", "Upper-right central incisor"],
+        ["左上中切牙", "Upper-left central incisor"],
+        ["左上侧切牙", "Upper-left lateral incisor"],
+        ["左上尖牙", "Upper-left canine"],
+        ["左上第一前磨牙", "Upper-left first premolar"],
+        ["左上第二前磨牙", "Upper-left second premolar"],
+        ["左上第一磨牙", "Upper-left first molar"],
+        ["左上第二磨牙", "Upper-left second molar"],
+        ["左上第三磨牙", "Upper-left third molar"],
+        ["右下第三磨牙", "Lower-right third molar"],
+        ["右下第二磨牙", "Lower-right second molar"],
+        ["右下第一磨牙", "Lower-right first molar"],
+        ["右下第二前磨牙", "Lower-right second premolar"],
+        ["右下第一前磨牙", "Lower-right first premolar"],
+        ["右下尖牙", "Lower-right canine"],
+        ["右下侧切牙", "Lower-right lateral incisor"],
+        ["右下中切牙", "Lower-right central incisor"],
+        ["左下中切牙", "Lower-left central incisor"],
+        ["左下侧切牙", "Lower-left lateral incisor"],
+        ["左下尖牙", "Lower-left canine"],
+        ["左下第一前磨牙", "Lower-left first premolar"],
+        ["左下第二前磨牙", "Lower-left second premolar"],
+        ["左下第一磨牙", "Lower-left first molar"],
+        ["左下第二磨牙", "Lower-left second molar"],
+        ["左下第三磨牙", "Lower-left third molar"],
+      ]);
+
+      for (const [source, target] of [
+        ["16 号牙复查建议", "Tooth 16 follow-up recommendation"],
+        ["陈医生回复 · 昨天 16:40", "Dr. Chen replied · Yesterday 16:40"],
+        ["正在为当前牙位生成一条新的问题事件", "Creating a new issue event for the current tooth"],
+        ["观察记录", "Observation record"],
+        ["新增照片", "Add photo"],
+        ["画像版本 5 · DEMO DATA", "Profile version 5 · DEMO DATA"],
+        ["已使用 2 次观察会话 · 本机牙列特征匹配 96% · Emma", "2 observation sessions · Local dental-arch match 96% · Emma"],
+        ["天然牙 · 2019 年建立档案", "Natural tooth · Record established in 2019"],
+        ["照片", "Photos"],
+        ["正在读取对应关系", "Reading tooth correspondence"],
+        ["最近记录", "Recent records"],
+        ["等待选择牙齿", "Waiting for tooth selection"],
+        ["询问牙齿档案", "Ask about dental records"],
+        ["牙医", "Dentist"],
+        ["本月记录小结", "This month's record summary"],
+        ["重要事件", "Important event"],
+        ["医师要求补拍", "Dentist requested another photo"],
+        ["16 号牙 · 医院确认记录", "Tooth 16 · Clinic-confirmed record"],
+        ["疑似牙结石 · OBS-16-202608-01 · 模拟结果", "Possible tartar · OBS-16-202608-01 · Simulated result"],
+        ["16 号牙 · 咬合面问题", "Tooth 16 · Occlusal-surface issue"],
+        ["事件 EVT-20260721-016 · 已持续 3 天", "Event EVT-20260721-016 · Active for 3 days"],
+        ["清洁后这个位置还是有一块颜色较深的区域，需要担心吗？", "A darker area remains here after cleaning. Should I be concerned?"],
+        ["AI 辅助 · 模拟结果 · DEMO DATA", "AI-assisted · Simulated result · DEMO DATA"],
+        ["AI 初步判断：疑似牙结石。可见牙齿边缘有较固定的黄褐色附着，建议交由医师进一步确认。 证据：OBS-16-202608-01、OBS-16-202608-02。", "Preliminary AI assessment: possible tartar. Fixed yellow-brown buildup is visible along the tooth margin. Dental review is recommended. Evidence: OBS-16-202608-01 and OBS-16-202608-02."],
+        ["我看到了这张照片。请再补拍一张更靠近咬合面的照片，尽量避开反光，我会继续在这个事件里回复。", "I reviewed this photo. Please take another closer to the occlusal surface and avoid glare. I will continue replying in this event."],
+        ["可预览", "Preview available"],
+        ["陈医", "Dentist"],
+        ["2 张", "2 photos"],
+        ["3 张照片 · 当前演示会话", "3 photos · Current demo session"],
+        ["个人牙齿地图概览", "Personal tooth map overview"],
+        ["较早时间的口腔区域演示图片", "Earlier demo image of this oral area"],
+        ["较晚时间的口腔区域演示图片", "Later demo image of this oral area"],
+        ["2026 年 8 月 · 同一区域", "August 2026 · Same area"],
+        ["ORB + RANSAC 对齐 · 对应置信度 0.91 · CORR-16-202608", "ORB + RANSAC alignment · Correspondence confidence 0.91 · CORR-16-202608"],
+        ["需要关注 · 疑似牙结石范围缓慢变化", "Needs attention · Possible tartar area changing slowly"],
+        ["同一区域的黄褐色附着范围较早期扩大；结论绑定 OBS-16-202602-01 与 OBS-16-202608-01，仍需医师确认。", "Yellow-brown buildup in the same area appears broader than before. The assessment links OBS-16-202602-01 and OBS-16-202608-01 and still requires dental review."],
+        ["已校正色偏与尺度漂移 · 对应置信度 0.94 · CORR-36-202608", "Color and scale drift corrected · Correspondence confidence 0.94 · CORR-36-202608"],
+        ["跨期稳定 · 原始差异来自设备色偏", "Stable over time · Original difference came from device color shift"],
+        ["扣除基准标记录的颜色与尺度漂移后，剩余变化未超过该区域历史噪声阈值。证据 OBS-36-202512-02、OBS-36-202608-03。", "After correcting recorded color and scale drift, remaining change stays within the area's historical noise threshold. Evidence: OBS-36-202512-02 and OBS-36-202608-03."],
+        ["2026 年 5 月 · 颊侧候选", "May 2026 · Buccal candidate"],
+        ["2026 年 8 月 · 角度偏差", "August 2026 · Angle mismatch"],
+        ["对应置信度 0.42 · 低于比较阈值 · CORR-46-202608", "Correspondence confidence 0.42 · Below comparison threshold · CORR-46-202608"],
+        ["证据不足 · 暂不进行跨期判断", "Insufficient evidence · No longitudinal assessment"],
+        ["两次拍摄的角度和可见牙面差异过大，系统拒绝强行比较。下次观察会优先引导补拍 46 号牙。", "The two captures differ too much in angle and visible tooth surface, so the system declines to force a comparison. The next session will prioritize Tooth 46."],
+        ["天然牙 · ToothSite 16-B · 2019 年建立身份", "Natural tooth · ToothSite 16-B · Identity established in 2019"],
+        ["医院确认 · 咬合面复查", "Clinic confirmed · Occlusal follow-up"],
+        ["模拟结果 · 疑似牙结石 · OBS-16-202608-01", "Simulated result · Possible tartar · OBS-16-202608-01"],
+        ["同区域拍摄", "Same-area capture"],
+        ["设备记录 · CORR-16-202608 · 可用于对比", "Device record · CORR-16-202608 · Available for comparison"],
+        ["口腔检查", "Oral examination"],
+        ["医院确认 · 例行复诊", "Clinic confirmed · Routine follow-up"],
+        ["天然牙 · 2021 年建立档案", "Natural tooth · Record established in 2021"],
+        ["清洁后拍摄", "Post-cleaning capture"],
+        ["建立照片基线", "Photo baseline established"],
+        ["牙冠修复体 · ToothSite 36-O · 2023 年更新状态", "Dental crown · ToothSite 36-O · Status updated in 2023"],
+        ["漂移校正后保持稳定", "Stable after drift correction"],
+        ["AI 辅助 · OBS-36-202608-03", "AI-assisted · OBS-36-202608-03"],
+        ["牙冠复查", "Crown follow-up"],
+        ["牙冠治疗", "Crown treatment"],
+        ["医院确认 · 状态变更", "Clinic confirmed · Status change"],
+        ["天然牙 · ToothSite 46-B · 对应关系待补强", "Natural tooth · ToothSite 46-B · Correspondence needs more evidence"],
+        ["跨期比较已停止", "Longitudinal comparison stopped"],
+        ["颊侧拍摄", "Buccal capture"],
+        ["设备记录 · 角度候选", "Device record · Angle candidate"],
+        ["建立首条基线", "Initial baseline established"],
+        ["等待照片质量检查。", "Waiting for image-quality check."],
+        ["清洁", "Cleaning"],
+        ["全口", "Full mouth"],
+        ["补记清洁", "Backfilled cleaning"],
+        ["牙位与区域已确认，报告仍是草稿，保存后才会进入档案", "Tooth and area confirmed. The report remains a draft until saved."],
+        ["请先确认牙位与区域", "Please confirm the tooth and area first"],
+        ["照片与 AI 报告已同步到档案、首页和日历", "Photo and AI report synced to Records, Home, and Calendar"],
+        ["当前照片质量不足，请重拍后再发起咨询", "Image quality is insufficient. Retake the photo before requesting a consultation."],
+        ["已带入当前照片、牙齿区域和 AI 报告", "Current photo, tooth area, and AI report added"],
+        ["清洁提醒已暂停", "Cleaning reminders paused"],
+        ["清洁提醒已恢复", "Cleaning reminders resumed"],
+        ["今晚的提醒已推迟到 22:30", "Tonight's reminder was postponed to 22:30"],
+        ["消息已加入当前事件", "Message added to the current event"],
+        ["当前事件已经提交，请勿重复发送", "This event has already been submitted. Do not send it again."],
+        ["正在提交…", "Submitting…"],
+        ["分享包已提交，未重复创建咨询事件", "Share package submitted without creating a duplicate consultation event"],
+      ]) {
+        EN_TEXT.set(source, target);
+      }
+
+      const EN_PHRASES = [...EN_TEXT.entries()]
+        .filter(([source]) => source.length >= 2)
+        .sort(([left], [right]) => right.length - left.length);
+
+      function translatePatterns(value) {
+        const monthNames = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+        return value
+          .replace(/(\d{4})\s*年\s*(\d{1,2})\s*月/g, (_, year, month) => {
+            return `${monthNames[Number(month) - 1] || month} ${year}`;
+          })
+          .replace(/(\d{1,2})\s*月\s*(\d{1,2})\s*日/g, (_, month, day) => {
+            return `${monthNames[Number(month) - 1] || month} ${Number(day)}`;
+          })
+          .replace(/(\d+)\s*号牙/g, "Tooth $1")
+          .replace(/(\d+)\s*张照片/g, "$1 photos")
+          .replace(/(\d+)\s*个区域/g, "$1 areas")
+          .replace(/(\d+)\s*处待观察/g, "$1 areas to monitor")
+          .replace(/(\d+)\s*次清洁/g, "$1 cleanings")
+          .replace(/连续\s*(\d+)\s*天/g, "$1-day streak")
+          .replace(/(\d+)\s*条证据/g, "$1 evidence items")
+          .replace(/(\d+)\s*个牙位/g, "$1 tooth sites")
+          .replace(/(\d+)\s*次观察会话/g, "$1 observation sessions")
+          .replace(/(\d+)\s*小时/g, "$1 hours")
+          .replace(/(\d+)\s*周前/g, "$1 weeks ago");
+      }
+
+      function translateToEnglish(value) {
+        const direct = EN_TEXT.get(value);
+        if (direct) {
+          return direct;
+        }
+        let translated = translatePatterns(value);
+        for (const [source, target] of EN_PHRASES) {
+          if (translated.includes(source)) {
+            translated = translated.split(source).join(target);
+          }
+        }
+        return translated
+          .replaceAll("，", ", ")
+          .replaceAll("。", ".")
+          .replaceAll("；", "; ")
+          .replaceAll("：", ": ")
+          .replaceAll("（", " (")
+          .replaceAll("）", ")")
+          .replace(/\s{2,}/g, " ")
+          .trim();
+      }
+
+      function translateValue(value) {
+        if (currentLanguage !== "en" || typeof value !== "string") {
+          return value;
+        }
+        const leading = value.match(/^\s*/)?.[0] || "";
+        const trailing = value.match(/\s*$/)?.[0] || "";
+        const core = value.trim();
+        return core ? `${leading}${translateToEnglish(core)}${trailing}` : value;
+      }
+
+      function shouldSkipI18n(node) {
+        const element =
+          node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+        return Boolean(
+          element?.closest(
+            "script, style, [data-i18n-ignore], [data-no-i18n]",
+          ),
+        );
+      }
+
+      function translateTextNode(node) {
+        if (shouldSkipI18n(node)) {
+          return;
+        }
+        const current = node.nodeValue || "";
+        let original = ORIGINAL_TEXT.get(node);
+        if (original === undefined) {
+          original = current;
+          ORIGINAL_TEXT.set(node, original);
+        } else if (
+          currentLanguage === "en" &&
+          current !== translateToEnglish(original.trim()) &&
+          /[\u3400-\u9fff]/u.test(current)
+        ) {
+          original = current;
+          ORIGINAL_TEXT.set(node, original);
+        } else if (
+          currentLanguage === "zh-CN" &&
+          current !== original &&
+          /[\u3400-\u9fff]/u.test(current)
+        ) {
+          original = current;
+          ORIGINAL_TEXT.set(node, original);
+        }
+        const target = currentLanguage === "en" ? translateValue(original) : original;
+        if (node.nodeValue !== target) {
+          node.nodeValue = target;
+        }
+      }
+
+      function translateElementAttributes(element) {
+        if (shouldSkipI18n(element)) {
+          return;
+        }
+        let originals = ORIGINAL_ATTRIBUTES.get(element);
+        if (!originals) {
+          originals = new Map();
+          ORIGINAL_ATTRIBUTES.set(element, originals);
+        }
+        for (const attribute of TRANSLATABLE_ATTRIBUTES) {
+          if (!element.hasAttribute(attribute)) {
+            continue;
+          }
+          const current = element.getAttribute(attribute) || "";
+          let original = originals.get(attribute);
+          if (original === undefined) {
+            original = current;
+            originals.set(attribute, original);
+          } else if (
+            currentLanguage === "en" &&
+            current !== translateToEnglish(original) &&
+            /[\u3400-\u9fff]/u.test(current)
+          ) {
+            original = current;
+            originals.set(attribute, original);
+          } else if (
+            currentLanguage === "zh-CN" &&
+            current !== original &&
+            /[\u3400-\u9fff]/u.test(current)
+          ) {
+            original = current;
+            originals.set(attribute, original);
+          }
+          const target =
+            currentLanguage === "en" ? translateToEnglish(original) : original;
+          if (current !== target) {
+            element.setAttribute(attribute, target);
+          }
+        }
+      }
+
+      function applyLanguageToSubtree(root = document.body) {
+        if (root.nodeType === Node.TEXT_NODE) {
+          translateTextNode(root);
+          return;
+        }
+        if (!(root instanceof Element) && root !== document.body) {
+          return;
+        }
+        if (root instanceof Element) {
+          translateElementAttributes(root);
+        }
+        const textWalker = document.createTreeWalker(
+          root,
+          NodeFilter.SHOW_TEXT,
+        );
+        let textNode = textWalker.nextNode();
+        while (textNode) {
+          translateTextNode(textNode);
+          textNode = textWalker.nextNode();
+        }
+        for (const element of root.querySelectorAll(
+          TRANSLATABLE_ATTRIBUTES.map((attribute) => `[${attribute}]`).join(","),
+        )) {
+          translateElementAttributes(element);
+        }
+      }
+
+      function storedLanguage() {
+        try {
+          const value = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+          return SUPPORTED_LANGUAGES.has(value) ? value : "zh-CN";
+        } catch {
+          return "zh-CN";
+        }
+      }
+
+      function persistLanguage(language) {
+        try {
+          window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+        } catch {
+          // Language preference is non-essential; private browsing may block storage.
+        }
+      }
+
+      function updateLanguageControls() {
+        for (const button of document.querySelectorAll("[data-language]")) {
+          button.setAttribute(
+            "aria-pressed",
+            String(button.dataset.language === currentLanguage),
+          );
+        }
+      }
+
+      function refreshLocalizedDynamicUI() {
+        renderCalendar();
+        renderToothMap();
+        updateDeviceUI();
+        if (currentDraft) {
+          updateReportContextText();
+          setContextConfirmationState(
+            contextConfirmed ? "confirmed" : "needs-confirmation",
+          );
+        }
+      }
+
+      function setLanguage(language, { persist = true, refresh = true } = {}) {
+        if (!SUPPORTED_LANGUAGES.has(language)) {
+          return;
+        }
+        currentLanguage = language;
+        document.documentElement.lang = language;
+        document.documentElement.dataset.language = language;
+        document.title =
+          language === "en"
+            ? "teethsee | Smart Visual Water Flosser"
+            : "teethsee｜智能可视冲牙器";
+        document
+          .querySelector('meta[name="description"]')
+          ?.setAttribute(
+            "content",
+            language === "en"
+              ? "teethsee smart visual water flosser: guided scanning, AI reports, tooth records, calendar history, and dentist consultation."
+              : "teethsee 智能可视冲牙器：冲牙扫描、AI 报告、牙齿档案、日历历史与医师咨询。",
+          );
+        updateLanguageControls();
+        applyLanguageToSubtree(document.body);
+        if (persist) {
+          persistLanguage(language);
+        }
+        if (refresh) {
+          refreshLocalizedDynamicUI();
+        }
+      }
+
+      function initializeI18n() {
+        for (const button of document.querySelectorAll("[data-language]")) {
+          button.addEventListener("click", () => {
+            setLanguage(button.dataset.language);
+          });
+        }
+        i18nObserver = new MutationObserver((records) => {
+          for (const record of records) {
+            if (record.type === "characterData") {
+              translateTextNode(record.target);
+              continue;
+            }
+            if (record.type === "attributes") {
+              translateElementAttributes(record.target);
+              continue;
+            }
+            for (const node of record.addedNodes) {
+              applyLanguageToSubtree(node);
+            }
+          }
+        });
+        i18nObserver.observe(document.body, {
+          subtree: true,
+          childList: true,
+          characterData: true,
+          attributes: true,
+          attributeFilter: TRANSLATABLE_ATTRIBUTES,
+        });
+        setLanguage(storedLanguage(), { persist: false, refresh: false });
+      }
+
       const VIEW_TITLES = {
         home: "首页",
         observe: "扫描牙齿",
@@ -5785,12 +6548,15 @@
         if (!currentDraft) {
           return;
         }
-        const time = new Intl.DateTimeFormat("zh-CN", {
+        const time = new Intl.DateTimeFormat(
+          currentLanguage === "en" ? "en-US" : "zh-CN",
+          {
           month: "2-digit",
           day: "2-digit",
           hour: "2-digit",
           minute: "2-digit",
-        }).format(currentDraft.createdAt);
+          },
+        ).format(currentDraft.createdAt);
         const toothLabel = toothSelect.value === "unknown" ? "待确认牙齿" : `${toothSelect.value} 号牙`;
         reportMeta.textContent =
           `事件草稿 · ${toothLabel} · ${regionSelect.value} · ${time} · ` +
@@ -7233,7 +7999,10 @@
         document.getElementById("detail-photo-count").textContent = record.photos;
         document.getElementById("detail-event-count").textContent = record.events;
         document.getElementById("detail-followup-count").textContent = record.followups;
-        archiveQueryInput.value = `我的 ${toothNumber} 号牙这半年怎么样？`;
+        archiveQueryInput.value =
+          currentLanguage === "en"
+            ? `How has my tooth ${toothNumber} changed over the past six months?`
+            : `我的 ${toothNumber} 号牙这半年怎么样？`;
 
         const timeline = document.getElementById("tooth-timeline");
         timeline.replaceChildren();
@@ -7263,10 +8032,13 @@
         const grid = document.getElementById("calendar-grid");
         const title = document.getElementById("calendar-month-title");
         grid.replaceChildren();
-        title.textContent = new Intl.DateTimeFormat("zh-CN", {
+        title.textContent = new Intl.DateTimeFormat(
+          currentLanguage === "en" ? "en-US" : "zh-CN",
+          {
           year: "numeric",
           month: "long",
-        }).format(currentCalendarDate);
+          },
+        ).format(currentCalendarDate);
 
         const year = currentCalendarDate.getFullYear();
         const month = currentCalendarDate.getMonth();
@@ -7339,6 +8111,9 @@
         sourceElement.textContent = source;
         const bubble = document.createElement("div");
         bubble.className = "bubble";
+        if (type === "user") {
+          bubble.dataset.noI18n = "";
+        }
         bubble.textContent = text;
         const time = document.createElement("span");
         time.className = "message-time";
@@ -7686,6 +8461,7 @@
         revokePreviewUrl();
       });
 
+      initializeI18n();
       renderToothMap();
       renderCalendar();
       renderArchivePhotos();

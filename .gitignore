@@ -1,0 +1,24 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# Local build and delivery outputs
+tmp/
+交付文件/
+memory/
+*.zip
+*.tar.gz
+
+# Editor and local tooling state
+.openai/
+.idea/
+.vscode/
+node_modules/
+coverage/
+
+# Credentials and private keys
+*.pem
+*.key
+id_rsa*
+id_ed25519*

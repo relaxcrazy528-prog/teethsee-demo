@@ -6,7 +6,7 @@ teethsee 是带摄像头的智能可视冲牙器演示系统，提供实时口�
 
 [打开 teethsee 在线演示](https://relaxcrazy528-prog.github.io/teethsee-demo/)
 
-备用地址：[chatgpt.site 演示](https://csgeekr.com/teethsee)
+备用地址：[https://csgeekr.com/teethsee](https://csgeekr.com/teethsee)
 
 ## 本地使用
 

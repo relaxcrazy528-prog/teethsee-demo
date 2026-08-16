@@ -16,6 +16,7 @@ memory/
 .vscode/
 node_modules/
 coverage/
+.wrangler/
 
 # Credentials and private keys
 *.pem

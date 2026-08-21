@@ -1,6 +1,6 @@
-# teethsee 龋齿检测训练程序（v0.1）
+# teethsee 龋齿检测训练程序（v0.2）
 
-本模块针对 `Dataset2` 的 Labelme 标注训练口内照片龋齿目标检测模型。训练使用云端 Linux GPU；Intel Mac 只负责数据审计和 ONNX 推理。
+本模块针对 `Dataset2` 的 Labelme 标注训练口内照片龋齿目标检测模型。正式训练使用云端 Linux GPU；Intel Mac 可以通过 Docker 做小规模 CPU 试训、数据审计和 ONNX 推理。
 
 ## 数据结论
 
@@ -71,7 +71,46 @@ uv run python -m teethsee_training.train \
 - `metrics.jsonl`：每轮训练损失和患者级验证指标；
 - `test-metrics.json`：只在最终模型确定后运行一次的测试集结果。
 
-## 4. 导出 ONNX
+## 4. Intel Mac 本地快速试训
+
+先从患者级清单生成确定性小样本。默认保留 96 张训练图、24 张验证图和 24 张测试图，并确保每个集合尽量包含乳牙龋坏和确认无框样本：
+
+```bash
+cd ai-service
+PYTHONPATH=../ai-training/src uv run python -m teethsee_training.quick_manifest \
+  --manifest ../ai-training/manifests/dataset2-v7/manifest.jsonl \
+  --output ../ai-training/manifests/dataset2-local-quick.jsonl
+```
+
+构建只含 CPU 版 PyTorch 的隔离镜像。`.dockerignore` 会阻止原始图片、训练清单和输出进入镜像构建上下文：
+
+```bash
+cd ../ai-training
+docker build --file Dockerfile.local-cpu --tag teethsee-training:cpu .
+```
+
+运行一轮轻量模型试训。数据目录以只读方式挂载；只有缓存和输出目录可写：
+
+```bash
+mkdir -p outputs/torch-cache outputs/local-quick-v1
+docker run --rm --read-only --tmpfs /tmp:rw,noexec,nosuid,size=256m \
+  --cpus 8 --memory 8g --pids-limit 512 \
+  --cap-drop ALL --security-opt no-new-privileges \
+  --mount type=bind,src='/Users/zoe/Desktop/黑客松/Dataset2',dst=/data,readonly \
+  --mount type=bind,src="$PWD/manifests/dataset2-local-quick.jsonl",dst=/manifest.jsonl,readonly \
+  --mount type=bind,src="$PWD/outputs/torch-cache",dst=/cache \
+  --mount type=bind,src="$PWD/outputs/local-quick-v1",dst=/outputs \
+  teethsee-training:cpu \
+  --dataset-root /data \
+  --manifest /manifest.jsonl \
+  --architecture fasterrcnn_mobilenet_v3_large_320_fpn \
+  --output-dir /outputs/run \
+  --epochs 1 --batch-size 1 --workers 0 --patience 1
+```
+
+本地试训用于确认数据与代码链路，不能替代完整训练和独立外部验证。
+
+## 5. 导出 ONNX
 
 ```bash
 uv sync --frozen --group export

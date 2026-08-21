@@ -1,6 +1,6 @@
 [project]
 name = "teethsee-ai-training"
-version = "0.1.0"
+version = "0.2.0"
 description = "Patient-grouped dental caries detector training for teethsee"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
@@ -8,8 +8,9 @@ dependencies = [
   "numpy==2.3.5",
   "pillow==12.3.0",
   "safetensors==0.6.2",
-  "torch==2.12.0",
-  "torchvision==0.27.0",
+  "setuptools==83.0.0",
+  "torch==2.13.0",
+  "torchvision==0.28.0",
 ]
 
 [dependency-groups]

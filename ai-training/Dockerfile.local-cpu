@@ -1,0 +1,25 @@
+FROM python:3.12.11-slim-bookworm@sha256:c00fc7b44d844b6da22861ec24af43968a5200eac4ec607b4725d585165d6b49
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/teethsee/src \
+    TORCH_HOME=/cache
+
+WORKDIR /opt/teethsee
+
+COPY requirements-local-cpu.txt ./requirements-local-cpu.txt
+RUN python -m pip install --no-cache-dir --no-deps --require-hashes \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    --requirement requirements-local-cpu.txt
+RUN python -c "import setuptools, torch, torchvision; assert setuptools.__version__ == '83.0.0'; assert torch.__version__ == '2.13.0+cpu'; assert torchvision.__version__ == '0.28.0+cpu'"
+
+COPY src ./src
+
+RUN useradd --create-home --uid 65532 trainer \
+    && mkdir -p /cache /outputs \
+    && chown -R trainer:trainer /cache /outputs
+
+USER trainer
+WORKDIR /workspace
+
+ENTRYPOINT ["python", "-m", "teethsee_training.train"]

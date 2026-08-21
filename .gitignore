@@ -17,6 +17,12 @@ memory/
 node_modules/
 coverage/
 .wrangler/
+.venv/
+__pycache__/
+.pytest_cache/
+
+# Downloaded AI weights are verified locally and never committed
+ai-service/models/
 
 # Credentials and private keys
 *.pem

@@ -3,8 +3,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
-const schemaUrl = new URL('../migrations/0001_initial.sql', import.meta.url);
-const schema = readFileSync(schemaUrl, 'utf8');
+const migrationUrls = [
+  new URL('../migrations/0001_initial.sql', import.meta.url),
+  new URL('../migrations/0002_security.sql', import.meta.url)
+];
+const schema = migrationUrls.map((url) => readFileSync(url, 'utf8')).join('\n');
 
 function sqlite(script) {
   return spawnSync('sqlite3', [':memory:'], { input: `${schema}\n${script}`, encoding: 'utf8' });
@@ -20,7 +23,7 @@ test('migration creates the complete persistence model', () => {
   const names = result.stdout.trim().split('\n');
   assert.deepEqual(names, [
     'audit_logs', 'events', 'hospital_imports', 'messages', 'organization_memberships',
-    'organizations', 'photos', 'profile_shares', 'profiles', 'teeth', 'users'
+    'organizations', 'photos', 'profile_shares', 'profiles', 'rate_limit_counters', 'teeth', 'users'
   ]);
 });
 

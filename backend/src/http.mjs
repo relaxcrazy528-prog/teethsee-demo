@@ -77,5 +77,6 @@ export function errorResponse(request, env, error, requestId) {
   const status = known ? error.status : 500;
   const code = known ? error.code : 'internal_error';
   const message = known ? error.message : '服务暂时不可用';
-  return json(request, env, { error: { code, message, request_id: requestId } }, status);
+  const extras = known && error.retryAfter ? { 'retry-after': String(error.retryAfter) } : {};
+  return json(request, env, { error: { code, message, request_id: requestId } }, status, extras);
 }

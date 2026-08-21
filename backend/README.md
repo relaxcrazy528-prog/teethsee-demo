@@ -1,4 +1,4 @@
-# teethsee 数据服务（v0.1）
+# teethsee 数据服务（v0.2）
 
 本目录是与公开静态演示隔离的真实数据底座。根目录 `index.html` 与现有 GitHub Pages 地址不会因这里的开发而改变。
 
@@ -14,6 +14,8 @@
 - 医院外部记录幂等导入；
 - 写操作审计日志；
 - 跨用户和跨机构的服务端权限检查。
+- Sites 身份与标准 OIDC 双模式认证；
+- 对读取、写入、图片、消息和医院导入接口进行账号/IP 限流。
 
 ## 存储
 
@@ -27,9 +29,11 @@
 
 ## 身份边界
 
-当前身份适配器只信任 Sites 运行时注入的 `oai-authenticated-user-*` 请求头。`worker.mjs` 不得作为允许客户端自行设置这些请求头的裸 Worker 对外发布。
+`AUTH_MODE=sites` 时，身份适配器只信任 Sites 运行时注入的 `oai-authenticated-user-*` 请求头，`worker.mjs` 不得作为允许客户端自行设置这些请求头的裸 Worker 对外发布。
 
-面向普通消费者、医师和医院的正式注册登录还需要接入成熟的 OIDC 身份服务；选定服务前不会自行实现密码系统，也不会把测试登录方式带入线上。
+正式部署使用 `AUTH_MODE=oidc`，并配置可信的 `OIDC_ISSUER`、`OIDC_JWKS_URL` 和 `OIDC_AUDIENCE`。后端会校验 JWT 签名、算法、发行方、受众、签发时间和过期时间，不自行实现密码系统。浏览器端应通过服务端会话/BFF 使用 HttpOnly Cookie，不把令牌写入 localStorage；iOS 客户端可以使用系统安全存储管理短期令牌。
+
+`AUTH_MODE=hybrid` 只用于处在 Sites 可信代理之后的过渡阶段。直接暴露的 API 不应启用该模式。
 
 ## API 摘要
 
@@ -49,10 +53,11 @@
 
 ## 本地验证
 
-无需安装第三方依赖：
+安装锁定依赖并验证：
 
 ```bash
 cd backend
+npm ci
 npm run verify
 ```
 

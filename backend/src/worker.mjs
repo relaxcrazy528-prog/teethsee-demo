@@ -3,6 +3,7 @@ import { audit, rows } from './db.mjs';
 import { ApiError, assert } from './errors.mjs';
 import { binary, empty, errorResponse, json, preflight, assertAllowedOrigin } from './http.mjs';
 import { imageStorageKey, readSafePng, sha256Hex } from './image.mjs';
+import { enforceRateLimits } from './rate-limit.mjs';
 import {
   getProfileAccess,
   requireEventAccess,
@@ -22,7 +23,7 @@ import {
   readJson
 } from './validation.mjs';
 
-const API_VERSION = '0.1.0';
+const API_VERSION = '0.2.0';
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function nowIso() {
@@ -487,7 +488,8 @@ export async function handleRequest(request, env) {
       return json(request, env, { status: 'ok', service: 'teethsee-backend', version: API_VERSION });
     }
     assert(parts[0] === 'v1', 404, 'not_found', '接口不存在');
-    const user = await requireCurrentUser(request, env.DB);
+    const user = await requireCurrentUser(request, env);
+    await enforceRateLimits(request, env, user);
     return await routeAuthenticated(request, env, user, parts);
   } catch (error) {
     if (!(error instanceof ApiError)) {
@@ -500,5 +502,11 @@ export async function handleRequest(request, env) {
 export default {
   fetch(request, env) {
     return handleRequest(request, env);
+  },
+  scheduled(_controller, env, context) {
+    const cutoff = new Date(Date.now() - 2 * 86_400_000).toISOString();
+    context.waitUntil(
+      env.DB.prepare('DELETE FROM rate_limit_counters WHERE updated_at < ?1').bind(cutoff).run()
+    );
   }
 };

@@ -13,7 +13,7 @@ test('health endpoint is public but does not expose configuration', async () => 
   const response = await handleRequest(new Request('https://api.example.test/health'), env);
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.deepEqual(body, { status: 'ok', service: 'teethsee-backend', version: '0.1.0' });
+  assert.deepEqual(body, { status: 'ok', service: 'teethsee-backend', version: '0.2.0' });
   assert.equal(response.headers.get('cache-control'), 'no-store');
   assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
 });

@@ -24,6 +24,13 @@ __pycache__/
 # Downloaded AI weights are verified locally and never committed
 ai-service/models/
 
+# Local medical-image manifests, sanitized copies and trained weights
+ai-training/manifests/
+ai-training/outputs/
+ai-training/sanitized-data/
+*.safetensors
+*.onnx
+
 # Credentials and private keys
 *.pem
 *.key

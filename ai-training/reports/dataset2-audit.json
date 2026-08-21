@@ -1,0 +1,69 @@
+{
+  "annotations": {
+    "ambiguous_samples": 27,
+    "empty_samples": 38,
+    "files": 2245,
+    "ignored": {
+      "shape_type:line": 2,
+      "unknown_label:M": 44,
+      "unknown_label:m": 1
+    },
+    "invalid_annotations": 0,
+    "invalid_images": 0,
+    "missing_images": 18,
+    "usable_samples": 2200,
+    "valid_boxes": {
+      "D": 6174,
+      "d": 552
+    }
+  },
+  "dataset": {
+    "doi": "10.5281/zenodo.14827784",
+    "name": "Annotated intraoral image dataset for dental caries detection"
+  },
+  "dataset_fingerprint": "e72e85a0eb2bfb2b2412dacbf8ff433b3bd2f140dced6d0301f2075b1bef2168",
+  "local_images": {
+    "formats": {
+      "JPEG": 6265
+    },
+    "invalid": 0,
+    "total": 6265,
+    "with_exif": 760
+  },
+  "new_splits": {
+    "test": {
+      "boxes": {
+        "D": 420,
+        "d": 40
+      },
+      "empty_samples": 5,
+      "groups": 166,
+      "samples": 230
+    },
+    "train": {
+      "boxes": {
+        "D": 5349,
+        "d": 475
+      },
+      "empty_samples": 26,
+      "groups": 673,
+      "samples": 1741
+    },
+    "valid": {
+      "boxes": {
+        "D": 405,
+        "d": 37
+      },
+      "empty_samples": 7,
+      "groups": 162,
+      "samples": 229
+    }
+  },
+  "original_coco_leakage": {
+    "assigned_images": 2200,
+    "groups": 1001,
+    "groups_crossing_splits": 302
+  },
+  "patient_groups": 1001,
+  "schema_version": 1
+}

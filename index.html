@@ -4842,10 +4842,10 @@
                   <p class="eyebrow">THIS MONTH</p>
                   <h3>本月记录小结</h3>
                   <div class="period-stats">
-                    <div class="period-stat"><strong>12</strong><span>清洁记录</span></div>
-                    <div class="period-stat"><strong>4</strong><span>拍摄事件</span></div>
-                    <div class="period-stat"><strong>2</strong><span>AI 报告</span></div>
-                    <div class="period-stat"><strong>1</strong><span>医师回复</span></div>
+                    <div class="period-stat"><strong id="month-cleaning-count">0</strong><span>清洁记录</span></div>
+                    <div class="period-stat"><strong id="month-photo-count">0</strong><span>拍摄事件</span></div>
+                    <div class="period-stat"><strong id="month-ai-count">0</strong><span>AI 报告</span></div>
+                    <div class="period-stat"><strong id="month-hospital-count">0</strong><span>医师回复</span></div>
                   </div>
                 </section>
 
@@ -4856,32 +4856,7 @@
                       <p>当前周期</p>
                     </div>
                   </div>
-                  <div class="timeline">
-                    <div class="timeline-item">
-                      <span class="timeline-date">7 月 23 日</span>
-                      <span class="timeline-axis"></span>
-                      <div class="timeline-copy">
-                        <strong>医师要求补拍</strong>
-                        <p>16 号牙 · 医院确认记录</p>
-                      </div>
-                    </div>
-                    <div class="timeline-item">
-                      <span class="timeline-date">7 月 21 日</span>
-                      <span class="timeline-axis"></span>
-                      <div class="timeline-copy">
-                        <strong>AI 观察记录</strong>
-                        <p>疑似牙结石 · OBS-16-202608-01 · 模拟结果</p>
-                      </div>
-                    </div>
-                    <div class="timeline-item">
-                      <span class="timeline-date">7 月 12 日</span>
-                      <span class="timeline-axis"></span>
-                      <div class="timeline-copy">
-                        <strong>完成清洁记录</strong>
-                        <p>设备自动记录</p>
-                      </div>
-                    </div>
-                  </div>
+                  <div id="calendar-important-events" class="timeline"></div>
                 </section>
               </aside>
             </div>
@@ -6323,8 +6298,9 @@
       function makeEvent(dayOffset, source, label, tooth) {
         const date = new Date();
         date.setDate(date.getDate() + dayOffset);
+        const toothKey = tooth === "全口" ? "full-mouth" : tooth;
         return {
-          id: `seed-${source}-${dayOffset}-${tooth}`,
+          id: `seed-${source}-${dayOffset}-${toothKey}`,
           date: dateKey(date),
           source,
           label,
@@ -7817,6 +7793,16 @@
             calendarEvents.splice(0, calendarEvents.length, ...events);
           }
         }
+        const requiredFullMouthEvents = [
+          makeEvent(-4, "device", "清洁", "全口"),
+          makeEvent(-7, "user", "补记清洁", "全口"),
+          makeEvent(-13, "device", "清洁", "全口"),
+        ];
+        for (const event of requiredFullMouthEvents) {
+          if (!calendarEvents.some((item) => item.id === event.id)) {
+            calendarEvents.push(event);
+          }
+        }
 
         if (Array.isArray(state.archivePhotos)) {
           const photos = state.archivePhotos
@@ -8362,6 +8348,82 @@
         renderArchiveSummary(toothNumber);
       }
 
+      function eventsForCalendarMonth(year, month) {
+        return calendarEvents
+          .filter((event) => {
+            const date = new Date(`${event.date}T12:00:00`);
+            return date.getFullYear() === year && date.getMonth() === month;
+          })
+          .sort((left, right) => right.date.localeCompare(left.date));
+      }
+
+      function renderCalendarSummary(year, month) {
+        const events = eventsForCalendarMonth(year, month);
+        document.getElementById("month-cleaning-count").textContent = events.filter(
+          (event) => /清洁|clean/i.test(event.label),
+        ).length;
+        document.getElementById("month-photo-count").textContent = events.filter(
+          (event) => /拍摄|photo/i.test(event.label),
+        ).length;
+        document.getElementById("month-ai-count").textContent = events.filter(
+          (event) => event.source === "ai",
+        ).length;
+        document.getElementById("month-hospital-count").textContent = events.filter(
+          (event) => event.source === "hospital",
+        ).length;
+
+        const timeline = document.getElementById("calendar-important-events");
+        timeline.replaceChildren();
+        const importantEvents = events
+          .filter((event) => ["hospital", "ai", "device"].includes(event.source))
+          .slice(0, 3);
+        if (importantEvents.length === 0) {
+          const empty = document.createElement("p");
+          empty.className = "archive-empty-state";
+          empty.textContent =
+            currentLanguage === "en"
+              ? "No important events recorded for this month."
+              : "这个月暂时没有重要事件。";
+          timeline.appendChild(empty);
+          return;
+        }
+
+        const sourceLabels =
+          currentLanguage === "en"
+            ? { hospital: "Clinic record", ai: "AI report", device: "Device record" }
+            : { hospital: "医院确认记录", ai: "AI 报告", device: "设备记录" };
+        for (const event of importantEvents) {
+          const date = new Date(`${event.date}T12:00:00`);
+          const item = document.createElement("div");
+          item.className = "timeline-item";
+          const dateElement = document.createElement("span");
+          dateElement.className = "timeline-date";
+          dateElement.textContent = new Intl.DateTimeFormat(
+            currentLanguage === "en" ? "en-US" : "zh-CN",
+            { month: "short", day: "numeric" },
+          ).format(date);
+          const axis = document.createElement("span");
+          axis.className = "timeline-axis";
+          const copy = document.createElement("div");
+          copy.className = "timeline-copy";
+          const title = document.createElement("strong");
+          title.textContent = event.label;
+          const detail = document.createElement("p");
+          const toothLabel =
+            event.tooth === "全口"
+              ? currentLanguage === "en"
+                ? "Full mouth"
+                : "全口"
+              : currentLanguage === "en"
+                ? `Tooth ${event.tooth}`
+                : `${event.tooth} 号牙`;
+          detail.textContent = `${toothLabel} · ${sourceLabels[event.source]}`;
+          copy.append(title, detail);
+          item.append(dateElement, axis, copy);
+          timeline.appendChild(item);
+        }
+      }
+
       function renderCalendar() {
         const grid = document.getElementById("calendar-grid");
         const title = document.getElementById("calendar-month-title");
@@ -8376,6 +8438,7 @@
 
         const year = currentCalendarDate.getFullYear();
         const month = currentCalendarDate.getMonth();
+        renderCalendarSummary(year, month);
         const firstDay = new Date(year, month, 1);
         const start = new Date(year, month, 1 - firstDay.getDay());
 

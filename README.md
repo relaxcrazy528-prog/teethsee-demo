@@ -17,6 +17,7 @@ teethsee 是带摄像头的智能可视冲牙器演示系统，提供实时口�
 - `index.html`：完整网页与交互逻辑。
 - `assets/`：本地演示图片素材。
 - `smoke-test.mjs`：功能、安全与中英文覆盖检查。
+- `mobile/`：iOS/Android 共用的 React Native + Expo 手机 App。
 - `backend/`：正在开发的真实数据服务，包含牙齿档案、时间线、私有照片、消息和医院接入接口；尚未接入公开演示。
 
 ## 验证

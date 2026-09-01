@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "teethsee",
+    "slug": "teethsee",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "teethsee",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.teethsee.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "teethsee 使用相机拍摄口腔照片并建立个人牙齿记录。",
+        "NSPhotoLibraryUsageDescription": "teethsee 需要读取你选择的口腔照片用于本次分析。",
+        "NSLocalNetworkUsageDescription": "teethsee 需要访问局域网以连接你的 Wi-Fi 口腔摄像头。",
+        "NSBonjourServices": [
+          "_teethsee-camera._tcp",
+          "_rtsp._tcp"
+        ]
+      }
+    },
+    "android": {
+      "package": "com.teethsee.app",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.CHANGE_WIFI_MULTICAST_STATE",
+        "android.permission.NEARBY_WIFI_DEVICES"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "允许 teethsee 读取你选择的口腔照片。",
+          "cameraPermission": "允许 teethsee 拍摄口腔照片。"
+        }
+      ],
+      "expo-status-bar"
+    ]
+  }
+}

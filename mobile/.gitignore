@@ -1,0 +1,14 @@
+node_modules/
+.expo/
+dist/
+web-build/
+*.jks
+*.keystore
+*.mobileprovision
+*.p8
+*.p12
+*.key
+*.pem
+.env
+.env.*
+!.env.example

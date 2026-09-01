@@ -5956,6 +5956,7 @@
         consult: "咨询",
         profile: "我的",
       };
+      const VIEW_ROUTE_PREFIX = "#/";
 
       const reportTemplates = {
         calculus: {
@@ -6563,10 +6564,30 @@
           `MockVision 0.5 / Ruleset 2.1 · ${currentDraft.evidenceRecords.length} 条证据`;
       }
 
-      function switchView(viewName) {
+      function viewFromLocation() {
+        const candidate = window.location.hash.startsWith(VIEW_ROUTE_PREFIX)
+          ? window.location.hash.slice(VIEW_ROUTE_PREFIX.length)
+          : "home";
+        return VIEW_TITLES[candidate] ? candidate : "home";
+      }
+
+      function writeViewHistory(viewName, mode) {
+        const url = new URL(window.location.href);
+        url.hash = `${VIEW_ROUTE_PREFIX}${viewName}`;
+        const state = { ...(window.history.state || {}), teethseeView: viewName };
+        if (mode === "replace") {
+          window.history.replaceState(state, "", url);
+          return;
+        }
+        window.history.pushState(state, "", url);
+      }
+
+      function switchView(viewName, { historyMode = "push" } = {}) {
         if (!VIEW_TITLES[viewName]) {
           return;
         }
+
+        const previousView = document.body.dataset.activeView || "home";
 
         for (const button of navigationButtons) {
           const active = button.dataset.view === viewName;
@@ -6580,8 +6601,21 @@
 
         locationTitle.textContent = VIEW_TITLES[viewName];
         document.body.dataset.activeView = viewName;
+        if (historyMode === "replace") {
+          writeViewHistory(viewName, "replace");
+        } else if (
+          historyMode === "push" &&
+          (previousView !== viewName || window.history.state?.teethseeView !== viewName)
+        ) {
+          writeViewHistory(viewName, "push");
+        }
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
+
+      window.addEventListener("popstate", (event) => {
+        const viewName = event.state?.teethseeView || viewFromLocation();
+        switchView(viewName, { historyMode: "none" });
+      });
 
       function showToast(message) {
         window.clearTimeout(toastTimer);
@@ -8462,6 +8496,7 @@
       });
 
       initializeI18n();
+      switchView(viewFromLocation(), { historyMode: "replace" });
       renderToothMap();
       renderCalendar();
       renderArchivePhotos();

@@ -4797,7 +4797,7 @@
               <div class="section-header">
                 <div>
                   <h3 id="demo-library-title">个人档案 · 演示样张库</h3>
-                  <p>查看、上传或删除已保存照片；新增记录仅保留在当前演示会话。</p>
+                  <p>查看、上传或删除已保存照片；新增记录会保存在当前设备的浏览器中。</p>
                 </div>
                 <span id="archive-library-count" class="source-tag source-ai">3 张照片 · DEMO DATA</span>
               </div>
@@ -5135,7 +5135,7 @@
         <div class="upload-picker-content">
           <div class="upload-picker-section-head">
             <strong>个人档案库</strong>
-            <span id="archive-upload-count">3 张照片 · 当前演示会话</span>
+            <span id="archive-upload-count">3 张照片 · 当前设备浏览器</span>
           </div>
 
           <div
@@ -5496,7 +5496,7 @@
         ["删除", "Delete"],
         ["档案库暂无照片。上传并保存报告后，照片会显示在这里。", "No photos in the library yet. Photos appear here after upload and report saving."],
         ["暂无可上传照片，请从本机选择。", "No saved photos are available. Choose one from your device."],
-        ["查看、上传或删除已保存照片；新增记录仅保留在当前演示会话。", "View, upload, or delete saved photos. New records remain only in this demo session."],
+        ["查看、上传或删除已保存照片；新增记录会保存在当前设备的浏览器中。", "View, upload, or delete saved photos. New records are stored in this device's browser."],
         ["自动建档进行中", "Auto-mapping in progress"],
         ["DEMO DATA · 自动建档模拟", "DEMO DATA · Auto-mapping simulation"],
         ["结束", "Exit"],
@@ -5614,7 +5614,7 @@
         ["可预览", "Preview available"],
         ["陈医", "Dentist"],
         ["2 张", "2 photos"],
-        ["3 张照片 · 当前演示会话", "3 photos · Current demo session"],
+        ["3 张照片 · 当前设备浏览器", "3 photos · This device's browser"],
         ["个人牙齿地图概览", "Personal tooth map overview"],
         ["较早时间的口腔区域演示图片", "Earlier demo image of this oral area"],
         ["较晚时间的口腔区域演示图片", "Later demo image of this oral area"],
@@ -6226,6 +6226,7 @@
         makeEvent(-13, "device", "清洁", "全口"),
         makeEvent(-18, "hospital", "复诊", "36"),
       ];
+      const savedReports = [];
 
       const navigationButtons = [...document.querySelectorAll("[data-view]")];
       const viewPanels = [...document.querySelectorAll("[data-view-panel]")];
@@ -6477,6 +6478,7 @@
         }
 
         enrollmentSessions += 1;
+        void persistDemoState();
         updateEnrollmentUI();
         renderToothMap();
         mirrorRing.style.setProperty(
@@ -7271,7 +7273,16 @@
         addHomeRecord(currentDraft);
         updateToothArchive(currentDraft);
         saveCurrentPhotoToArchive(currentDraft);
+        savedReports.unshift({
+          id: currentDraft.id,
+          tooth: currentDraft.tooth,
+          region: currentDraft.region,
+          reportType: currentDraft.reportType,
+          title: currentDraft.reportData.title,
+          savedAt: currentDraft.savedAt.toISOString(),
+        });
         renderCalendar();
+        void persistDemoState();
 
         reportSaved = true;
         toothSelect.disabled = true;
@@ -7550,6 +7561,284 @@
         );
       }
 
+      const DEMO_DATABASE_NAME = "teethsee-demo";
+      const DEMO_DATABASE_VERSION = 1;
+      const DEMO_STATE_STORE = "app-state";
+      const DEMO_STATE_KEY = "default-profile";
+      const PERSISTED_STATE_VERSION = 1;
+      const PERSISTED_EVENT_SOURCES = new Set(["user", "device", "ai", "hospital"]);
+      const PHOTO_SOURCE_CLASSES = new Set([
+        "source-user",
+        "source-device",
+        "source-ai",
+        "source-hospital",
+      ]);
+
+      function boundedText(value, maxLength) {
+        return typeof value === "string" && value.length <= maxLength ? value : "";
+      }
+
+      function boundedCount(value, max = 10_000) {
+        return Number.isInteger(value) && value >= 0 && value <= max ? value : 0;
+      }
+
+      function sanitizeTimeline(value) {
+        if (!Array.isArray(value)) {
+          return [];
+        }
+        return value.slice(0, 100).flatMap((entry) => {
+          if (!Array.isArray(entry) || entry.length !== 3) {
+            return [];
+          }
+          const sanitized = entry.map((item) => boundedText(item, 500));
+          return sanitized.every(Boolean) ? [sanitized] : [];
+        });
+      }
+
+      function sanitizeToothRecord(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) {
+          return null;
+        }
+        const status = boundedText(value.status, 500);
+        if (!status) {
+          return null;
+        }
+        return {
+          photos: boundedCount(value.photos),
+          events: boundedCount(value.events),
+          followups: boundedCount(value.followups),
+          status,
+          timeline: sanitizeTimeline(value.timeline),
+        };
+      }
+
+      function sanitizeCalendarEvent(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) {
+          return null;
+        }
+        const id = boundedText(value.id, 120);
+        const date = boundedText(value.date, 10);
+        const source = boundedText(value.source, 20);
+        const label = boundedText(value.label, 120);
+        const tooth = boundedText(String(value.tooth ?? ""), 20);
+        if (
+          !/^[A-Za-z0-9_-]+$/.test(id) ||
+          !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
+          !PERSISTED_EVENT_SOURCES.has(source) ||
+          !label ||
+          !tooth
+        ) {
+          return null;
+        }
+        return {
+          id,
+          date,
+          source,
+          label,
+          tooth,
+          region: boundedText(value.region, 80),
+        };
+      }
+
+      function sanitizeArchivePhoto(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) {
+          return null;
+        }
+        const photo = {
+          id: boundedText(value.id, 120),
+          name: boundedText(value.name, 240),
+          type: boundedText(value.type, 40),
+          src: boundedText(value.src, 8 * 1024 * 1024),
+          title: boundedText(value.title, 160),
+          meta: boundedText(value.meta, 500),
+          alt: boundedText(value.alt, 240),
+          source: boundedText(value.source, 120),
+          sourceClass: boundedText(value.sourceClass, 40),
+          savedTooth: boundedText(String(value.savedTooth ?? ""), 20),
+        };
+        if (
+          !/^[A-Za-z0-9_-]+$/.test(photo.id) ||
+          !["image/png", "image/jpeg", "image/webp"].includes(photo.type) ||
+          !photo.name ||
+          !photo.title ||
+          !photo.alt ||
+          !PHOTO_SOURCE_CLASSES.has(photo.sourceClass) ||
+          !isSafeArchivePhotoSource(photo)
+        ) {
+          return null;
+        }
+        return photo;
+      }
+
+      function sanitizeSavedReport(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) {
+          return null;
+        }
+        const id = boundedText(value.id, 120);
+        const tooth = boundedText(String(value.tooth ?? ""), 20);
+        const reportType = boundedText(value.reportType, 40);
+        const title = boundedText(value.title, 240);
+        const savedAt = boundedText(value.savedAt, 40);
+        if (
+          !/^[A-Za-z0-9_-]+$/.test(id) ||
+          !["calculus", "caries", "periodontal", "insufficient"].includes(reportType) ||
+          !(tooth === "unknown" || allTeeth.includes(Number(tooth))) ||
+          !title ||
+          Number.isNaN(Date.parse(savedAt))
+        ) {
+          return null;
+        }
+        return {
+          id,
+          tooth,
+          region: boundedText(value.region, 80),
+          reportType,
+          title,
+          savedAt,
+        };
+      }
+
+      function openDemoDatabase() {
+        return new Promise((resolve, reject) => {
+          if (!("indexedDB" in window)) {
+            reject(new Error("indexed_db_unavailable"));
+            return;
+          }
+          const request = window.indexedDB.open(
+            DEMO_DATABASE_NAME,
+            DEMO_DATABASE_VERSION,
+          );
+          request.addEventListener("upgradeneeded", () => {
+            const database = request.result;
+            if (!database.objectStoreNames.contains(DEMO_STATE_STORE)) {
+              database.createObjectStore(DEMO_STATE_STORE);
+            }
+          });
+          request.addEventListener("success", () => resolve(request.result));
+          request.addEventListener("error", () => reject(request.error));
+          request.addEventListener("blocked", () => reject(new Error("indexed_db_blocked")));
+        });
+      }
+
+      async function readDemoState() {
+        const database = await openDemoDatabase();
+        try {
+          return await new Promise((resolve, reject) => {
+            const transaction = database.transaction(DEMO_STATE_STORE, "readonly");
+            const request = transaction.objectStore(DEMO_STATE_STORE).get(DEMO_STATE_KEY);
+            request.addEventListener("success", () => resolve(request.result || null));
+            request.addEventListener("error", () => reject(request.error));
+          });
+        } finally {
+          database.close();
+        }
+      }
+
+      async function writeDemoState(state) {
+        const database = await openDemoDatabase();
+        try {
+          await new Promise((resolve, reject) => {
+            const transaction = database.transaction(DEMO_STATE_STORE, "readwrite");
+            transaction.objectStore(DEMO_STATE_STORE).put(state, DEMO_STATE_KEY);
+            transaction.addEventListener("complete", resolve);
+            transaction.addEventListener("abort", () => reject(transaction.error));
+            transaction.addEventListener("error", () => reject(transaction.error));
+          });
+        } finally {
+          database.close();
+        }
+      }
+
+      function persistedDemoState() {
+        return {
+          version: PERSISTED_STATE_VERSION,
+          enrolledTeeth: [...enrolledTeeth],
+          enrollmentSessions,
+          selectedTooth,
+          reminderPaused,
+          toothRecords,
+          calendarEvents,
+          archivePhotos,
+          savedReports,
+          updatedAt: new Date().toISOString(),
+        };
+      }
+
+      async function persistDemoState() {
+        try {
+          await writeDemoState(persistedDemoState());
+        } catch (error) {
+          console.warn("teethsee local archive persistence unavailable", error?.message || error);
+        }
+      }
+
+      async function restoreDemoState() {
+        let state;
+        try {
+          state = await readDemoState();
+        } catch {
+          return;
+        }
+        if (!state || state.version !== PERSISTED_STATE_VERSION) {
+          return;
+        }
+
+        if (Array.isArray(state.enrolledTeeth)) {
+          enrolledTeeth.clear();
+          for (const tooth of state.enrolledTeeth.slice(0, allTeeth.length)) {
+            if (allTeeth.includes(Number(tooth))) {
+              enrolledTeeth.add(Number(tooth));
+            }
+          }
+        }
+        enrollmentSessions = boundedCount(state.enrollmentSessions, 10_000) || 2;
+        if (allTeeth.includes(Number(state.selectedTooth))) {
+          selectedTooth = Number(state.selectedTooth);
+        }
+        reminderPaused = state.reminderPaused === true;
+
+        if (state.toothRecords && typeof state.toothRecords === "object") {
+          for (const tooth of allTeeth) {
+            const record = sanitizeToothRecord(state.toothRecords[tooth]);
+            if (record) {
+              toothRecords[tooth] = record;
+            }
+          }
+        }
+
+        if (Array.isArray(state.calendarEvents)) {
+          const events = state.calendarEvents
+            .slice(0, 1_000)
+            .map(sanitizeCalendarEvent)
+            .filter(Boolean);
+          if (events.length > 0) {
+            calendarEvents.splice(0, calendarEvents.length, ...events);
+          }
+        }
+
+        if (Array.isArray(state.archivePhotos)) {
+          const photos = state.archivePhotos
+            .slice(0, 200)
+            .map(sanitizeArchivePhoto)
+            .filter(Boolean);
+          archivePhotos.splice(0, archivePhotos.length, ...photos);
+        }
+
+        if (Array.isArray(state.savedReports)) {
+          const reports = state.savedReports
+            .slice(0, 200)
+            .map(sanitizeSavedReport)
+            .filter(Boolean);
+          savedReports.splice(0, savedReports.length, ...reports);
+        }
+      }
+
+      function renderRestoredReports() {
+        for (const report of [...savedReports].reverse()) {
+          addHomeRecord({ ...report, reportData: { title: report.title } });
+        }
+      }
+
       function createArchiveThumbnail() {
         const sourceWidth = capturePreview.naturalWidth;
         const sourceHeight = capturePreview.naturalHeight;
@@ -7748,7 +8037,7 @@
 
         archiveLibraryCount.textContent = `${archivePhotos.length} 张照片 · DEMO DATA`;
         archiveUploadCount.textContent =
-          `${archivePhotos.length} 张照片 · DEMO DATA · 当前演示会话`;
+          `${archivePhotos.length} 张照片 · DEMO DATA · 当前设备浏览器`;
         resetArchiveUploadSelection();
       }
 
@@ -7780,6 +8069,7 @@
           closeArchiveViewer(false);
         }
         renderArchivePhotos();
+        void persistDemoState();
         showToast("照片已从个人档案库删除，相关报告记录仍保留");
       }
 
@@ -8411,6 +8701,7 @@
       document.getElementById("reminder-toggle").addEventListener("click", (event) => {
         reminderPaused = !reminderPaused;
         event.currentTarget.textContent = reminderPaused ? "恢复提醒" : "暂停提醒";
+        void persistDemoState();
         showToast(reminderPaused ? "清洁提醒已暂停" : "清洁提醒已恢复");
       });
 
@@ -8495,15 +8786,24 @@
         revokePreviewUrl();
       });
 
-      initializeI18n();
-      switchView(viewFromLocation(), { historyMode: "replace" });
-      renderToothMap();
-      renderCalendar();
-      renderArchivePhotos();
-      updateDeviceUI();
-      void refreshUsbCameraList();
-      setContextConfirmationState("empty");
-      updateReportActions();
+      async function initializeApp() {
+        initializeI18n();
+        await restoreDemoState();
+        switchView(viewFromLocation(), { historyMode: "replace" });
+        renderToothMap();
+        renderCalendar();
+        renderArchivePhotos();
+        renderRestoredReports();
+        updateDeviceUI();
+        document.getElementById("reminder-toggle").textContent = reminderPaused
+          ? "恢复提醒"
+          : "暂停提醒";
+        void refreshUsbCameraList();
+        setContextConfirmationState("empty");
+        updateReportActions();
+      }
+
+      void initializeApp();
     </script>
   </body>
 </html>

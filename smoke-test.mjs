@@ -100,6 +100,10 @@ assert.doesNotMatch(html, /\bfetch\s*\(/, "离线 Demo 不应发起网络请求"
 assert.doesNotMatch(html, /\beval\s*\(|new\s+Function\s*\(/, "页面不应执行动态代码");
 assert.doesNotMatch(html, /innerHTML|insertAdjacentHTML/, "用户内容不得通过不安全 HTML 注入");
 assert.doesNotMatch(html, /sessionStorage/, "口腔照片和报告不得写入会话存储");
+assert.match(html, /window\.indexedDB\.open/, "演示档案必须使用 IndexedDB 在刷新后保留");
+assert.match(html, /sanitizeArchivePhoto/, "从浏览器恢复的照片必须经过白名单校验");
+assert.match(html, /sanitizeCalendarEvent/, "从浏览器恢复的事件必须经过结构校验");
+assert.match(html, /await restoreDemoState\(\)/, "首屏渲染前必须恢复本机档案状态");
 assert.match(
   html,
   /const LANGUAGE_STORAGE_KEY = "teethsee\.language"/,

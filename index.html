@@ -5426,6 +5426,7 @@
         ["按时间序列整理，每条结果均绑定证据", "Organized chronologically, with every result linked to evidence"],
         ["问自己的牙齿档案", "Ask about your dental record"],
         ["选择一颗牙后，可以询问它最近的变化、证据是否充足，以及系统为什么得出当前判断。", "Select a tooth to ask about recent changes, evidence sufficiency, and why the system reached its current assessment."],
+        ["可以询问 ${toothNumber} 号牙最近的变化、证据是否充足，以及系统为什么得出当前判断。", "Ask about recent changes for tooth ${toothNumber}, available evidence, or why the system reached its current observation."],
         ["回答只读取当前牙齿已归档的证据", "Answers use only archived evidence for the selected tooth"],
         ["查询档案", "Search records"],
         ["输入追问内容", "Enter a follow-up question"],
@@ -6183,6 +6184,7 @@
       let currentCalendarDate = new Date(now.getFullYear(), now.getMonth(), 1);
       let activeSourceFilter = "all";
       let selectedTooth = 16;
+      let archiveQueryAnswerTooth = null;
       let wifiDemoConnected = false;
       let usbStream = null;
       let usbCameraLabel = "";
@@ -8241,6 +8243,7 @@
           renderToothMap();
           archiveQueryInput.value = question;
         }
+        archiveQueryAnswerTooth = selectedTooth;
         const comparison = toothComparisonRecords[selectedTooth];
         const asksDisease = /蛀牙|龋齿|牙结石|牙龈炎|牙周炎|发炎/.test(question);
         if (asksDisease && selectedTooth === 16) {
@@ -8327,6 +8330,13 @@
           currentLanguage === "en"
             ? `How has my tooth ${toothNumber} changed over the past six months?`
             : `我的 ${toothNumber} 号牙这半年怎么样？`;
+        if (archiveQueryAnswerTooth !== toothNumber) {
+          archiveQueryAnswerTooth = null;
+          archiveQueryAnswer.textContent =
+            currentLanguage === "en"
+              ? `Ask about recent changes for tooth ${toothNumber}, available evidence, or why the system reached its current observation.`
+              : `可以询问 ${toothNumber} 号牙最近的变化、证据是否充足，以及系统为什么得出当前判断。`;
+        }
 
         const timeline = document.getElementById("tooth-timeline");
         timeline.replaceChildren();

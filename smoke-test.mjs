@@ -87,6 +87,8 @@ assert.match(html, /currentDraft\.evidenceRecords/, "报告、咨询和归档必
 assert.match(html, /id="archive-query-form"/, "牙齿档案必须支持模板化问答");
 assert.match(html, /answerArchiveQuery/, "档案问答必须使用确定性证据路径");
 assert.match(html, /archiveQueryInput\.value = question/, "档案问答切换牙位后必须保留用户问题");
+assert.match(html, /archiveQueryAnswerTooth !== toothNumber/, "切换牙位时必须清除上一颗牙的回答");
+assert.match(html, /archiveQueryAnswerTooth = selectedTooth/, "每条档案回答必须绑定当前牙位");
 assert.match(html, /证据缺口 GAP-/, "证据不足的用户可见回答也必须携带证据缺口 ID");
 assert.match(html, /DEMO DATA · 模拟结果/, "页面必须始终标识演示数据与模拟结果");
 assert.match(html, /疑似蛀牙/, "按已确认方案保留基础疾病候选类别");

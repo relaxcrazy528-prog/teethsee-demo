@@ -2343,6 +2343,43 @@
         padding: 20px 24px 24px;
       }
 
+      .family-member-dialog {
+        width: min(520px, 100%);
+      }
+
+      .family-member-form-content {
+        display: grid;
+        gap: 10px;
+      }
+
+      .family-member-form-content label {
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .family-member-form-content input {
+        min-height: 48px;
+        padding: 0 14px;
+        color: var(--ink);
+        border: 1px solid var(--line-strong, #b9ccc6);
+        border-radius: 12px;
+        background: #fff;
+        font: inherit;
+      }
+
+      .family-member-form-content input:focus-visible {
+        outline: 3px solid rgba(35, 138, 116, 0.24);
+        outline-offset: 2px;
+      }
+
+      .family-member-form-error {
+        min-height: 18px;
+        margin: 0;
+        color: #b43d2b;
+        font-size: 12px;
+      }
+
       .upload-picker-section-head {
         display: flex;
         align-items: center;
@@ -4228,9 +4265,9 @@
         </div>
 
         <div class="profile-mini">
-          <div class="avatar">E</div>
+          <div id="sidebar-profile-avatar" class="avatar">E</div>
           <div>
-            <strong>Emma</strong>
+            <strong id="sidebar-profile-name">Emma</strong>
             <span>当前家庭档案</span>
           </div>
         </div>
@@ -4245,7 +4282,7 @@
             <span>teethsee</span>
           </div>
           <div class="page-location">
-            <span>Emma 的牙齿档案</span>
+            <span id="page-profile-record-name">Emma 的牙齿档案</span>
             <span aria-hidden="true">/</span>
             <strong id="page-location-title">首页</strong>
           </div>
@@ -4270,9 +4307,9 @@
             </div>
             <span class="privacy-pill">照片仅在本机处理</span>
             <span class="demo-pill">DEMO DATA · 模拟结果</span>
-            <button class="profile-top-button" type="button" data-go-view="profile" aria-label="打开 Emma 的个人页面">
-              <span class="avatar">E</span>
-              <span>Emma</span>
+            <button id="profile-top-button" class="profile-top-button" type="button" data-go-view="profile" aria-label="打开 Emma 的个人页面">
+              <span id="profile-top-avatar" class="avatar">E</span>
+              <span id="profile-top-name">Emma</span>
             </button>
           </div>
         </header>
@@ -4281,9 +4318,9 @@
           <section class="view is-active" data-view-panel="home" aria-labelledby="home-title">
             <div class="view-heading">
               <div>
-                <p class="eyebrow">早上好，Emma</p>
+                <p id="home-greeting" class="eyebrow">早上好，Emma</p>
                 <h1 id="home-title">已连续使用 12 天</h1>
-                <p class="view-subtitle">继续保持——这周你已经连续冲牙 5 天了。</p>
+                <p id="home-subtitle" class="view-subtitle">继续保持——这周你已经连续冲牙 5 天了。</p>
               </div>
               <div class="button-row">
                 <button class="secondary-button js-upload-trigger" type="button">
@@ -4301,11 +4338,11 @@
                   <div class="section-header">
                     <div>
                       <p class="eyebrow">本周清洁记录</p>
-                      <h3>5 次清洁 · 连续 5 天</h3>
+                      <h3 id="home-cleaning-title">5 次清洁 · 连续 5 天</h3>
                     </div>
                     <button id="reminder-toggle" class="text-button" type="button">暂停提醒</button>
                   </div>
-                  <div class="week-chart" aria-label="本周清洁次数">
+                  <div id="home-week-chart" class="week-chart" aria-label="本周清洁次数">
                     <div class="day-bar is-done"><i style="height: 60%"></i><span>一</span></div>
                     <div class="day-bar is-done"><i style="height: 42%"></i><span>二</span></div>
                     <div class="day-bar is-done"><i style="height: 70%"></i><span>三</span></div>
@@ -4342,9 +4379,9 @@
                   <div class="section-header home-smile-heading">
                     <div>
                       <p class="eyebrow">你的牙齿地图</p>
-                      <h3 id="enrollment-home-title">有 2 个区域需要留意</h3>
+                      <h3 id="enrollment-home-title">牙齿地图概览</h3>
                     </div>
-                    <span class="source-tag source-alert">2 处待观察</span>
+                    <span id="home-watch-count" class="source-tag source-alert" data-i18n-ignore>2 处待观察</span>
                   </div>
                   <div class="home-smile-arch" aria-label="个人牙齿地图概览">
                     <div class="home-tooth-row" aria-hidden="true">
@@ -4371,7 +4408,7 @@
                   </div>
                 </section>
 
-                <section class="home-latest-section">
+                <section id="home-latest-section" class="home-latest-section">
                   <div class="section-header">
                     <div>
                       <p class="eyebrow">最新报告</p>
@@ -4409,7 +4446,7 @@
               </div>
 
               <aside class="home-rail">
-                <section class="card event-card">
+                <section id="home-followup-card" class="card event-card">
                   <div class="event-accent"></div>
                   <div class="event-body">
                     <p class="eyebrow">待跟进</p>
@@ -4680,7 +4717,7 @@
               <section class="card mouth-card">
                 <div class="section-header">
                   <div>
-                    <h3>Emma 的牙齿地图</h3>
+                    <h3 id="home-tooth-map-title">Emma 的牙齿地图</h3>
                     <p>每颗牙齿都有独立的长期记录</p>
                   </div>
                   <span class="source-tag source-ai">画像版本 5 · DEMO DATA</span>
@@ -4966,30 +5003,7 @@
             <div class="profile-layout">
               <section class="profile-family-panel" aria-labelledby="family-list-title">
                 <h3 id="family-list-title" class="profile-section-title">家庭档案</h3>
-                <button class="profile-member-row is-active" type="button" data-go-view="home">
-                  <span class="profile-member-avatar is-emma">E</span>
-                  <span class="profile-member-copy">
-                    <strong>Emma（本人）</strong>
-                    <span>最近扫描：今天</span>
-                  </span>
-                  <span class="source-tag source-ai">当前使用</span>
-                </button>
-                <button class="profile-member-row js-demo-profile" type="button" data-profile-name="Jack">
-                  <span class="profile-member-avatar is-jack">J</span>
-                  <span class="profile-member-copy">
-                    <strong>Jack</strong>
-                    <span>最近扫描：1 周前</span>
-                  </span>
-                  <span class="profile-chevron" aria-hidden="true">›</span>
-                </button>
-                <button class="profile-member-row js-demo-profile" type="button" data-profile-name="Mia">
-                  <span class="profile-member-avatar is-mia">M</span>
-                  <span class="profile-member-copy">
-                    <strong>Mia</strong>
-                    <span>尚未扫描</span>
-                  </span>
-                  <span class="profile-chevron" aria-hidden="true">›</span>
-                </button>
+                <div id="family-profile-list"></div>
                 <button class="profile-add-button js-add-family" type="button">
                   <span aria-hidden="true">＋</span>
                   添加家庭成员
@@ -5072,6 +5086,57 @@
       accept="image/jpeg,image/png,image/webp"
     />
     <canvas id="analysis-canvas" width="96" height="96" hidden></canvas>
+
+    <div
+      id="family-member-dialog"
+      class="upload-picker"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="family-member-dialog-title"
+      hidden
+    >
+      <button
+        id="family-member-dialog-backdrop"
+        class="upload-picker-backdrop"
+        type="button"
+        aria-label="关闭添加家庭成员窗口"
+      ></button>
+      <form id="family-member-form" class="upload-picker-dialog family-member-dialog">
+        <header class="upload-picker-head">
+          <div>
+            <p class="eyebrow">家庭</p>
+            <h2 id="family-member-dialog-title">添加家庭成员</h2>
+            <p>新成员会拥有独立的牙齿地图、照片和记录，不会与当前档案混在一起。</p>
+          </div>
+          <button
+            id="close-family-member-dialog"
+            class="upload-picker-close"
+            type="button"
+            aria-label="关闭添加家庭成员窗口"
+          >×</button>
+        </header>
+        <div class="upload-picker-content family-member-form-content">
+          <label for="family-member-name">成员姓名</label>
+          <input
+            id="family-member-name"
+            name="name"
+            type="text"
+            maxlength="24"
+            autocomplete="name"
+            placeholder="例如：Alex"
+            required
+          />
+          <p id="family-member-form-error" class="family-member-form-error" role="alert"></p>
+          <div class="upload-picker-actions">
+            <span class="upload-picker-actions-note">姓名只保存在当前设备的浏览器中。</span>
+            <div class="button-row">
+              <button id="cancel-family-member" class="ghost-button" type="button">取消</button>
+              <button class="primary-button" type="submit">创建独立档案</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
 
     <div
       id="upload-picker"
@@ -5248,6 +5313,22 @@
         ["谁在使用？", "Who's using it?"],
         ["添加家庭成员", "Add family member"],
         ["每位家庭成员都有独立的牙齿地图和历史记录。", "Each family member has a separate tooth map and history."],
+        ["新成员会拥有独立的牙齿地图、照片和记录，不会与当前档案混在一起。", "A new member gets an independent tooth map, photos, and records. Nothing is mixed with the current profile."],
+        ["关闭添加家庭成员窗口", "Close add-family-member dialog"],
+        ["成员姓名", "Member name"],
+        ["例如：Alex", "For example: Alex"],
+        ["姓名只保存在当前设备的浏览器中。", "The name is stored only in this device's browser."],
+        ["取消", "Cancel"],
+        ["创建独立档案", "Create independent profile"],
+        ["最近扫描：今天", "Last scan: today"],
+        ["最近扫描：1 周前", "Last scan: 1 week ago"],
+        ["尚未扫描", "Not scanned yet"],
+        ["准备开始第一次可视清洁", "Ready for your first visual clean"],
+        ["从一次观察开始建立个人牙齿档案。", "Start with one observation to build a personal dental record."],
+        ["尚无清洁记录", "No cleaning records yet"],
+        ["尚无需要留意的区域", "No areas need attention yet"],
+        ["尚无报告", "No reports yet"],
+        ["牙齿地图概览", "Tooth map overview"],
         ["最近扫描：今天", "Last scan: today"],
         ["最近扫描：1 周前", "Last scan: 1 week ago"],
         ["尚未扫描", "Not scanned yet"],
@@ -5883,8 +5964,12 @@
       }
 
       function refreshLocalizedDynamicUI() {
+        updateProfileIdentityUI();
+        renderFamilyProfileList();
+        updateEnrollmentUI();
         renderCalendar();
         renderToothMap();
+        renderHomeProfileContext();
         updateDeviceUI();
         if (currentDraft) {
           updateReportContextText();
@@ -6213,6 +6298,14 @@
       let uploadPickerReturnFocus = null;
       let archiveViewerReturnFocus = null;
       let activeArchiveViewerPhotoId = "";
+      let activeProfileId = "emma";
+      let familyDialogReturnFocus = null;
+      let familyMembers = [
+        { id: "emma", name: "Emma", avatarClass: "is-emma", lastScan: "今天" },
+        { id: "jack", name: "Jack", avatarClass: "is-jack", lastScan: "1 周前" },
+        { id: "mia", name: "Mia", avatarClass: "is-mia", lastScan: "" },
+      ];
+      const familyProfileStates = Object.create(null);
       let imageMetrics = {
         brightness: 128,
         contrast: 46,
@@ -6237,6 +6330,38 @@
 
       const navigationButtons = [...document.querySelectorAll("[data-view]")];
       const viewPanels = [...document.querySelectorAll("[data-view-panel]")];
+      const familyProfileList = document.getElementById("family-profile-list");
+      const familyMemberDialog = document.getElementById("family-member-dialog");
+      const familyMemberDialogBackdrop = document.getElementById(
+        "family-member-dialog-backdrop",
+      );
+      const familyMemberForm = document.getElementById("family-member-form");
+      const familyMemberNameInput = document.getElementById("family-member-name");
+      const familyMemberFormError = document.getElementById("family-member-form-error");
+      const closeFamilyMemberDialogButton = document.getElementById(
+        "close-family-member-dialog",
+      );
+      const cancelFamilyMemberButton = document.getElementById("cancel-family-member");
+      const sidebarProfileName = document.getElementById("sidebar-profile-name");
+      const sidebarProfileAvatar = document.getElementById("sidebar-profile-avatar");
+      const pageProfileRecordName = document.getElementById("page-profile-record-name");
+      const profileTopButton = document.getElementById("profile-top-button");
+      const profileTopAvatar = document.getElementById("profile-top-avatar");
+      const profileTopName = document.getElementById("profile-top-name");
+      const homeGreeting = document.getElementById("home-greeting");
+      const homeTitle = document.getElementById("home-title");
+      const homeSubtitle = document.getElementById("home-subtitle");
+      const homeCleaningTitle = document.getElementById("home-cleaning-title");
+      const homeWeekChart = document.getElementById("home-week-chart");
+      const homeLatestSection = document.getElementById("home-latest-section");
+      const homeFollowupCard = document.getElementById("home-followup-card");
+      const homeToothMapTitle = document.getElementById("home-tooth-map-title");
+      const homeWatchCount = document.getElementById("home-watch-count");
+      const homeRecordList = document.getElementById("home-record-list");
+      const defaultHomeRecordNodes = [...homeRecordList.childNodes].map((node) =>
+        node.cloneNode(true),
+      );
+      const profileSettingsTitle = document.getElementById("profile-settings-title");
       const locationTitle = document.getElementById("page-location-title");
       const photoInput = document.getElementById("photo-input");
       const uploadPicker = document.getElementById("upload-picker");
@@ -6409,6 +6534,9 @@
       function updateEnrollmentUI() {
         const covered = enrolledTeeth.size;
         const progress = Math.round((covered / allTeeth.length) * 100);
+        const watchCount = Object.values(toothState).filter(
+          (stateName) => stateName === "watch",
+        ).length;
         for (const label of document.querySelectorAll(".js-enrollment-progress")) {
           label.textContent = `${covered} / ${allTeeth.length}`;
         }
@@ -6427,6 +6555,18 @@
         for (const button of document.querySelectorAll(".js-start-enrollment")) {
           button.textContent =
             covered === allTeeth.length ? "查看完整牙位图" : "演示自动建档";
+        }
+        if (activeProfileId !== "emma") {
+          homeWatchCount.textContent =
+            watchCount > 0
+              ? currentLanguage === "en"
+                ? `${watchCount} areas to monitor`
+                : `${watchCount} 处待观察`
+              : currentLanguage === "en"
+                ? "No alerts"
+                : "暂无提醒";
+          homeWatchCount.classList.toggle("source-alert", watchCount > 0);
+          homeWatchCount.classList.toggle("source-ai", watchCount === 0);
         }
       }
 
@@ -7552,6 +7692,317 @@
         },
       ];
 
+      function cloneProfileValue(value) {
+        return JSON.parse(JSON.stringify(value));
+      }
+
+      function emptyFamilyProfileState() {
+        return {
+          enrolledTeeth: [],
+          enrollmentSessions: 0,
+          selectedTooth: 16,
+          reminderPaused: false,
+          toothRecords: {},
+          toothState: {},
+          calendarEvents: [],
+          archivePhotos: [],
+          savedReports: [],
+        };
+      }
+
+      function snapshotCurrentFamilyProfile() {
+        return {
+          enrolledTeeth: [...enrolledTeeth],
+          enrollmentSessions,
+          selectedTooth,
+          reminderPaused,
+          toothRecords: cloneProfileValue(toothRecords),
+          toothState: cloneProfileValue(toothState),
+          calendarEvents: cloneProfileValue(calendarEvents),
+          archivePhotos: cloneProfileValue(archivePhotos),
+          savedReports: cloneProfileValue(savedReports),
+        };
+      }
+
+      function restoreFamilyProfileState(state) {
+        const next = state && typeof state === "object" ? state : emptyFamilyProfileState();
+        enrolledTeeth.clear();
+        for (const tooth of Array.isArray(next.enrolledTeeth) ? next.enrolledTeeth : []) {
+          if (allTeeth.includes(Number(tooth))) {
+            enrolledTeeth.add(Number(tooth));
+          }
+        }
+        enrollmentSessions = boundedCount(next.enrollmentSessions, 10_000);
+        selectedTooth = allTeeth.includes(Number(next.selectedTooth))
+          ? Number(next.selectedTooth)
+          : 16;
+        reminderPaused = next.reminderPaused === true;
+
+        for (const key of Object.keys(toothRecords)) {
+          delete toothRecords[key];
+        }
+        if (next.toothRecords && typeof next.toothRecords === "object") {
+          for (const tooth of allTeeth) {
+            const record = sanitizeToothRecord(next.toothRecords[tooth]);
+            if (record) {
+              toothRecords[tooth] = record;
+            }
+          }
+        }
+
+        for (const key of Object.keys(toothState)) {
+          delete toothState[key];
+        }
+        if (next.toothState && typeof next.toothState === "object") {
+          for (const tooth of allTeeth) {
+            const stateName = boundedText(next.toothState[tooth], 40);
+            if (Object.hasOwn(toothStateLabels, stateName)) {
+              toothState[tooth] = stateName;
+            }
+          }
+        }
+
+        const events = Array.isArray(next.calendarEvents)
+          ? next.calendarEvents.map(sanitizeCalendarEvent).filter(Boolean)
+          : [];
+        calendarEvents.splice(0, calendarEvents.length, ...events);
+        const photos = Array.isArray(next.archivePhotos)
+          ? next.archivePhotos.map(sanitizeArchivePhoto).filter(Boolean)
+          : [];
+        archivePhotos.splice(0, archivePhotos.length, ...photos);
+        const reports = Array.isArray(next.savedReports)
+          ? next.savedReports.map(sanitizeSavedReport).filter(Boolean)
+          : [];
+        savedReports.splice(0, savedReports.length, ...reports);
+      }
+
+      function activeFamilyMember() {
+        return familyMembers.find((member) => member.id === activeProfileId) || familyMembers[0];
+      }
+
+      function profileLastScanCopy(member) {
+        if (!member.lastScan) {
+          return currentLanguage === "en" ? "Not scanned yet" : "尚未扫描";
+        }
+        if (currentLanguage === "en") {
+          return member.lastScan === "今天"
+            ? "Last scan: today"
+            : "Last scan: 1 week ago";
+        }
+        return `最近扫描：${member.lastScan}`;
+      }
+
+      function updateProfileIdentityUI() {
+        const member = activeFamilyMember();
+        if (!member) {
+          return;
+        }
+        const name = member.name;
+        sidebarProfileName.textContent = name;
+        profileTopName.textContent = name;
+        pageProfileRecordName.textContent =
+          currentLanguage === "en" ? `${name}’s dental record` : `${name} 的牙齿档案`;
+        profileTopButton.setAttribute(
+          "aria-label",
+          currentLanguage === "en" ? `Open ${name}’s profile` : `打开 ${name} 的个人页面`,
+        );
+        homeGreeting.textContent = currentLanguage === "en" ? `Good morning, ${name}` : `早上好，${name}`;
+        homeToothMapTitle.textContent =
+          currentLanguage === "en" ? `${name}’s tooth map` : `${name} 的牙齿地图`;
+        profileSettingsTitle.textContent =
+          currentLanguage === "en" ? `${name}’s preferences` : `${name} 的偏好`;
+        memberMatch.displayName = name;
+      }
+
+      function wireHomeRecordNavigation() {
+        for (const element of homeRecordList.querySelectorAll("[data-go-view]")) {
+          element.addEventListener("click", () => switchView(element.dataset.goView));
+        }
+      }
+
+      function renderHomeProfileContext() {
+        const member = activeFamilyMember();
+        const isPrimaryDemoProfile = member.id === "emma";
+        const initial = member.name.slice(0, 1).toUpperCase();
+        sidebarProfileAvatar.textContent = initial;
+        profileTopAvatar.textContent = initial;
+        const cleaningCount = calendarEvents.filter((event) => event.label === "清洁").length;
+        const watchCount = Object.values(toothState).filter((stateName) => stateName === "watch").length;
+
+        if (isPrimaryDemoProfile) {
+          homeTitle.textContent = currentLanguage === "en" ? "12-day usage streak" : "已连续使用 12 天";
+          homeSubtitle.textContent =
+            currentLanguage === "en"
+              ? "Keep it up — you have flossed for 5 consecutive days this week."
+              : "继续保持——这周你已经连续冲牙 5 天了。";
+          homeCleaningTitle.textContent =
+            currentLanguage === "en" ? "5 cleanings · 5-day streak" : "5 次清洁 · 连续 5 天";
+          homeWatchCount.textContent = currentLanguage === "en" ? "2 areas to monitor" : "2 处待观察";
+          homeWatchCount.classList.add("source-alert");
+          homeWatchCount.classList.remove("source-ai");
+          homeWeekChart.classList.remove("is-empty");
+          homeFollowupCard.hidden = false;
+          homeLatestSection.hidden = false;
+          homeRecordList.replaceChildren(
+            ...defaultHomeRecordNodes.map((node) => node.cloneNode(true)),
+          );
+          wireHomeRecordNavigation();
+          return;
+        }
+
+        homeTitle.textContent =
+          currentLanguage === "en" ? "Ready for your first visual clean" : "准备开始第一次可视清洁";
+        homeSubtitle.textContent =
+          currentLanguage === "en"
+            ? "Start with one observation to build a personal dental record."
+            : "从一次观察开始建立个人牙齿档案。";
+        homeCleaningTitle.textContent =
+          cleaningCount > 0
+            ? currentLanguage === "en"
+              ? `${cleaningCount} cleaning records`
+              : `${cleaningCount} 次清洁记录`
+            : currentLanguage === "en"
+              ? "No cleaning records yet"
+              : "尚无清洁记录";
+        homeWatchCount.textContent =
+          watchCount > 0
+            ? currentLanguage === "en"
+              ? `${watchCount} areas to monitor`
+              : `${watchCount} 处待观察`
+            : currentLanguage === "en"
+              ? "No alerts"
+              : "暂无提醒";
+        homeWatchCount.classList.toggle("source-alert", watchCount > 0);
+        homeWatchCount.classList.toggle("source-ai", watchCount === 0);
+        homeWeekChart.classList.toggle("is-empty", cleaningCount === 0);
+        for (const bar of homeWeekChart.querySelectorAll(".day-bar")) {
+          bar.classList.remove("is-done", "is-today");
+          bar.querySelector("i")?.style.setProperty("height", "0%");
+        }
+        homeFollowupCard.hidden = true;
+        homeLatestSection.hidden = savedReports.length === 0;
+        homeRecordList.replaceChildren();
+        if (savedReports.length === 0) {
+          return;
+        }
+        renderRestoredReports();
+        for (const featured of homeRecordList.querySelectorAll(".home-featured-record")) {
+          featured.classList.remove("home-featured-record");
+        }
+        homeRecordList.firstElementChild?.classList.add("home-featured-record");
+      }
+
+      function renderFamilyProfileList() {
+        familyProfileList.replaceChildren();
+        for (const member of familyMembers) {
+          const row = document.createElement("button");
+          row.type = "button";
+          row.className = "profile-member-row";
+          row.classList.toggle("is-active", member.id === activeProfileId);
+          row.dataset.familyProfileId = member.id;
+
+          const avatar = document.createElement("span");
+          avatar.className = `profile-member-avatar ${member.avatarClass || ""}`.trim();
+          avatar.textContent = member.name.slice(0, 1).toUpperCase();
+          const copy = document.createElement("span");
+          copy.className = "profile-member-copy";
+          const name = document.createElement("strong");
+          name.textContent =
+            member.id === "emma"
+              ? currentLanguage === "en"
+                ? `${member.name} (me)`
+                : `${member.name}（本人）`
+              : member.name;
+          const scan = document.createElement("span");
+          scan.textContent = profileLastScanCopy(member);
+          copy.append(name, scan);
+          row.append(avatar, copy);
+
+          if (member.id === activeProfileId) {
+            const status = document.createElement("span");
+            status.className = "source-tag source-ai";
+            status.textContent = currentLanguage === "en" ? "In use" : "当前使用";
+            row.appendChild(status);
+          } else {
+            const chevron = document.createElement("span");
+            chevron.className = "profile-chevron";
+            chevron.setAttribute("aria-hidden", "true");
+            chevron.textContent = "›";
+            row.appendChild(chevron);
+          }
+          row.addEventListener("click", () => {
+            void selectFamilyProfile(member.id);
+          });
+          familyProfileList.appendChild(row);
+        }
+      }
+
+      async function selectFamilyProfile(profileId) {
+        if (!familyMembers.some((member) => member.id === profileId) || profileId === activeProfileId) {
+          switchView("home");
+          return;
+        }
+        familyProfileStates[activeProfileId] = snapshotCurrentFamilyProfile();
+        if (!familyProfileStates[profileId]) {
+          familyProfileStates[profileId] = emptyFamilyProfileState();
+        }
+        activeProfileId = profileId;
+        restoreFamilyProfileState(familyProfileStates[profileId]);
+        currentArchivePhotoId = "";
+        selectedArchiveUploadPhotoId = "";
+        currentDraft = null;
+        reportSaved = false;
+        updateProfileIdentityUI();
+        updateEnrollmentUI();
+        renderFamilyProfileList();
+        renderToothMap();
+        renderHomeProfileContext();
+        renderCalendar();
+        renderArchivePhotos();
+        renderRestoredReports();
+        document.getElementById("reminder-toggle").textContent = reminderPaused
+          ? "恢复提醒"
+          : "暂停提醒";
+        switchView("home");
+        await persistDemoState();
+        showToast(
+          currentLanguage === "en"
+            ? `Switched to ${activeFamilyMember().name}’s independent profile`
+            : `已切换到 ${activeFamilyMember().name} 的独立档案`,
+        );
+      }
+
+      function openFamilyMemberDialog(trigger) {
+        familyDialogReturnFocus = trigger instanceof HTMLElement ? trigger : null;
+        familyMemberForm.reset();
+        familyMemberFormError.textContent = "";
+        familyMemberDialog.hidden = false;
+        document.body.classList.add("has-modal-open");
+        window.setTimeout(() => familyMemberNameInput.focus(), 0);
+      }
+
+      function closeFamilyMemberDialog(restoreFocus = true) {
+        familyMemberDialog.hidden = true;
+        document.body.classList.remove("has-modal-open");
+        if (restoreFocus && familyDialogReturnFocus instanceof HTMLElement) {
+          familyDialogReturnFocus.focus();
+        }
+      }
+
+      function normalizedFamilyMemberName(value) {
+        const name = typeof value === "string" ? value.replace(/\s+/g, " ").trim() : "";
+        return name.length > 0 && name.length <= 24 && !/[\u0000-\u001f\u007f]/.test(name)
+          ? name
+          : "";
+      }
+
+      function createFamilyProfileId() {
+        const randomPart = window.crypto?.getRandomValues
+          ? Array.from(window.crypto.getRandomValues(new Uint32Array(1)))[0].toString(36)
+          : Math.random().toString(36).slice(2, 10);
+        return `member-${Date.now().toString(36)}-${randomPart}`;
+      }
+
       function getArchivePhoto(photoId) {
         return archivePhotos.find((photo) => photo.id === photoId) || null;
       }
@@ -7573,7 +8024,7 @@
       const DEMO_DATABASE_VERSION = 1;
       const DEMO_STATE_STORE = "app-state";
       const DEMO_STATE_KEY = "default-profile";
-      const PERSISTED_STATE_VERSION = 1;
+      const PERSISTED_STATE_VERSION = 2;
       const PERSISTED_EVENT_SOURCES = new Set(["user", "device", "ai", "hospital"]);
       const PHOTO_SOURCE_CLASSES = new Set([
         "source-user",
@@ -7706,6 +8157,69 @@
         };
       }
 
+      function sanitizeFamilyMember(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) {
+          return null;
+        }
+        const id = boundedText(value.id, 80);
+        const name = normalizedFamilyMemberName(value.name);
+        const avatarClass = boundedText(value.avatarClass, 40);
+        const lastScan = boundedText(value.lastScan, 20);
+        if (!/^[A-Za-z0-9_-]+$/.test(id) || !name) {
+          return null;
+        }
+        return {
+          id,
+          name,
+          avatarClass: ["is-emma", "is-jack", "is-mia"].includes(avatarClass)
+            ? avatarClass
+            : "",
+          lastScan: ["今天", "1 周前", ""].includes(lastScan) ? lastScan : "",
+        };
+      }
+
+      function sanitizeFamilyProfileState(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) {
+          return emptyFamilyProfileState();
+        }
+        const records = {};
+        const states = {};
+        for (const tooth of allTeeth) {
+          const record = sanitizeToothRecord(value.toothRecords?.[tooth]);
+          if (record) {
+            records[tooth] = record;
+          }
+          const stateName = boundedText(value.toothState?.[tooth], 40);
+          if (Object.hasOwn(toothStateLabels, stateName)) {
+            states[tooth] = stateName;
+          }
+        }
+        return {
+          enrolledTeeth: Array.isArray(value.enrolledTeeth)
+            ? value.enrolledTeeth
+                .slice(0, allTeeth.length)
+                .map(Number)
+                .filter((tooth) => allTeeth.includes(tooth))
+            : [],
+          enrollmentSessions: boundedCount(value.enrollmentSessions, 10_000),
+          selectedTooth: allTeeth.includes(Number(value.selectedTooth))
+            ? Number(value.selectedTooth)
+            : 16,
+          reminderPaused: value.reminderPaused === true,
+          toothRecords: records,
+          toothState: states,
+          calendarEvents: Array.isArray(value.calendarEvents)
+            ? value.calendarEvents.slice(0, 1_000).map(sanitizeCalendarEvent).filter(Boolean)
+            : [],
+          archivePhotos: Array.isArray(value.archivePhotos)
+            ? value.archivePhotos.slice(0, 200).map(sanitizeArchivePhoto).filter(Boolean)
+            : [],
+          savedReports: Array.isArray(value.savedReports)
+            ? value.savedReports.slice(0, 200).map(sanitizeSavedReport).filter(Boolean)
+            : [],
+        };
+      }
+
       function openDemoDatabase() {
         return new Promise((resolve, reject) => {
           if (!("indexedDB" in window)) {
@@ -7758,16 +8272,19 @@
       }
 
       function persistedDemoState() {
+        familyProfileStates[activeProfileId] = snapshotCurrentFamilyProfile();
+        const activeState = familyProfileStates[activeProfileId];
         return {
           version: PERSISTED_STATE_VERSION,
-          enrolledTeeth: [...enrolledTeeth],
-          enrollmentSessions,
-          selectedTooth,
-          reminderPaused,
-          toothRecords,
-          calendarEvents,
-          archivePhotos,
-          savedReports,
+          activeProfileId,
+          familyMembers: familyMembers.map((member) => ({
+            id: member.id,
+            name: member.name,
+            avatarClass: member.avatarClass || "",
+            lastScan: member.lastScan || "",
+          })),
+          familyProfileStates,
+          ...activeState,
           updatedAt: new Date().toISOString(),
         };
       }
@@ -7787,67 +8304,52 @@
         } catch {
           return;
         }
-        if (!state || state.version !== PERSISTED_STATE_VERSION) {
+        if (!state || ![1, PERSISTED_STATE_VERSION].includes(state.version)) {
           return;
         }
+        const legacyActiveState = sanitizeFamilyProfileState(state);
+        if (state.version === PERSISTED_STATE_VERSION) {
+          const members = Array.isArray(state.familyMembers)
+            ? state.familyMembers.slice(0, 12).map(sanitizeFamilyMember).filter(Boolean)
+            : [];
+          const includesEmma = members.some((member) => member.id === "emma");
+          familyMembers = includesEmma
+            ? members
+            : [
+                { id: "emma", name: "Emma", avatarClass: "is-emma", lastScan: "今天" },
+                ...members,
+              ];
+          const requestedProfileId = boundedText(state.activeProfileId, 80);
+          activeProfileId = familyMembers.some((member) => member.id === requestedProfileId)
+            ? requestedProfileId
+            : "emma";
+          for (const key of Object.keys(familyProfileStates)) {
+            delete familyProfileStates[key];
+          }
+          const persistedProfiles = state.familyProfileStates;
+          for (const member of familyMembers) {
+            familyProfileStates[member.id] = sanitizeFamilyProfileState(
+              persistedProfiles?.[member.id],
+            );
+          }
+          familyProfileStates[activeProfileId] = legacyActiveState;
+        } else {
+          familyProfileStates.emma = legacyActiveState;
+        }
 
-        if (Array.isArray(state.enrolledTeeth)) {
-          enrolledTeeth.clear();
-          for (const tooth of state.enrolledTeeth.slice(0, allTeeth.length)) {
-            if (allTeeth.includes(Number(tooth))) {
-              enrolledTeeth.add(Number(tooth));
+        restoreFamilyProfileState(familyProfileStates[activeProfileId]);
+        if (activeProfileId === "emma") {
+          const requiredFullMouthEvents = [
+            makeEvent(-4, "device", "清洁", "全口"),
+            makeEvent(-7, "user", "补记清洁", "全口"),
+            makeEvent(-13, "device", "清洁", "全口"),
+          ];
+          for (const event of requiredFullMouthEvents) {
+            if (!calendarEvents.some((item) => item.id === event.id)) {
+              calendarEvents.push(event);
             }
           }
-        }
-        enrollmentSessions = boundedCount(state.enrollmentSessions, 10_000) || 2;
-        if (allTeeth.includes(Number(state.selectedTooth))) {
-          selectedTooth = Number(state.selectedTooth);
-        }
-        reminderPaused = state.reminderPaused === true;
-
-        if (state.toothRecords && typeof state.toothRecords === "object") {
-          for (const tooth of allTeeth) {
-            const record = sanitizeToothRecord(state.toothRecords[tooth]);
-            if (record) {
-              toothRecords[tooth] = record;
-            }
-          }
-        }
-
-        if (Array.isArray(state.calendarEvents)) {
-          const events = state.calendarEvents
-            .slice(0, 1_000)
-            .map(sanitizeCalendarEvent)
-            .filter(Boolean);
-          if (events.length > 0) {
-            calendarEvents.splice(0, calendarEvents.length, ...events);
-          }
-        }
-        const requiredFullMouthEvents = [
-          makeEvent(-4, "device", "清洁", "全口"),
-          makeEvent(-7, "user", "补记清洁", "全口"),
-          makeEvent(-13, "device", "清洁", "全口"),
-        ];
-        for (const event of requiredFullMouthEvents) {
-          if (!calendarEvents.some((item) => item.id === event.id)) {
-            calendarEvents.push(event);
-          }
-        }
-
-        if (Array.isArray(state.archivePhotos)) {
-          const photos = state.archivePhotos
-            .slice(0, 200)
-            .map(sanitizeArchivePhoto)
-            .filter(Boolean);
-          archivePhotos.splice(0, archivePhotos.length, ...photos);
-        }
-
-        if (Array.isArray(state.savedReports)) {
-          const reports = state.savedReports
-            .slice(0, 200)
-            .map(sanitizeSavedReport)
-            .filter(Boolean);
-          savedReports.splice(0, savedReports.length, ...reports);
+          familyProfileStates.emma = snapshotCurrentFamilyProfile();
         }
       }
 
@@ -8580,14 +9082,47 @@
         });
       }
 
-      for (const button of document.querySelectorAll(".js-demo-profile")) {
-        button.addEventListener("click", () => {
-          showToast(`${button.dataset.profileName} 的独立档案将在正式版本中显示`);
-        });
-      }
+      document.querySelector(".js-add-family")?.addEventListener("click", (event) => {
+        openFamilyMemberDialog(event.currentTarget);
+      });
 
-      document.querySelector(".js-add-family")?.addEventListener("click", () => {
-        showToast("添加家庭成员为正式版本功能");
+      closeFamilyMemberDialogButton.addEventListener("click", () => {
+        closeFamilyMemberDialog();
+      });
+      cancelFamilyMemberButton.addEventListener("click", () => {
+        closeFamilyMemberDialog();
+      });
+      familyMemberDialogBackdrop.addEventListener("click", () => {
+        closeFamilyMemberDialog();
+      });
+      familyMemberDialog.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          closeFamilyMemberDialog();
+        }
+      });
+      familyMemberForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const name = normalizedFamilyMemberName(familyMemberNameInput.value);
+        if (!name) {
+          familyMemberFormError.textContent =
+            currentLanguage === "en"
+              ? "Enter a name using 1 to 24 visible characters."
+              : "请输入 1 至 24 个可见字符的姓名。";
+          familyMemberNameInput.focus();
+          return;
+        }
+        if (familyMembers.some((member) => member.name.localeCompare(name, undefined, { sensitivity: "accent" }) === 0)) {
+          familyMemberFormError.textContent =
+            currentLanguage === "en" ? "A profile with this name already exists." : "该姓名的档案已经存在。";
+          familyMemberNameInput.focus();
+          return;
+        }
+        const id = createFamilyProfileId();
+        familyMembers.push({ id, name, avatarClass: "", lastScan: "" });
+        familyProfileStates[id] = emptyFamilyProfileState();
+        closeFamilyMemberDialog(false);
+        await selectFamilyProfile(id);
       });
 
       for (const button of document.querySelectorAll(".js-connect-device")) {
@@ -8892,8 +9427,12 @@
       async function initializeApp() {
         initializeI18n();
         await restoreDemoState();
+        updateProfileIdentityUI();
+        renderFamilyProfileList();
+        updateEnrollmentUI();
         switchView(viewFromLocation(), { historyMode: "replace" });
         renderToothMap();
+        renderHomeProfileContext();
         renderCalendar();
         renderArchivePhotos();
         renderRestoredReports();

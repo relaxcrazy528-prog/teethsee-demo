@@ -4480,9 +4480,9 @@
             <button class="back-link" type="button" data-go-view="home" aria-label="返回首页">‹ 首页</button>
             <div class="view-heading">
               <div>
-                <p class="eyebrow">冲牙中</p>
-                <h2 id="observe-title">继续冲牙就好</h2>
-                <p class="view-subtitle">角度和光线合适时自动拍摄，也可以手动拍摄或从档案选择照片。</p>
+                <p id="observe-eyebrow" class="eyebrow">准备观察</p>
+                <h2 id="observe-title">先连接 Wi‑Fi 摄像头</h2>
+                <p id="observe-subtitle" class="view-subtitle">连接后由移动端提供实时画面；也可以先从档案选择照片。</p>
               </div>
               <div class="button-row">
                 <button class="primary-button js-connect-device" type="button">
@@ -5411,6 +5411,11 @@
         ["稍后提醒", "Remind me later"],
         ["冲牙中", "Flossing"],
         ["继续冲牙就好", "Keep flossing"],
+        ["准备观察", "Ready to observe"],
+        ["先连接 Wi‑Fi 摄像头", "Connect the Wi-Fi camera first"],
+        ["连接后由移动端提供实时画面；也可以先从档案选择照片。", "After connection, the mobile app provides live video. You can also choose a photo from Records first."],
+        ["Wi‑Fi 配网中", "Wi-Fi setup"],
+        ["请继续在移动端完成视频协议接入。", "Continue in the mobile app to connect the video protocol."],
         ["角度和光线合适时自动拍摄，也可以手动拍摄或从档案选择照片。", "Photos are captured automatically when angle and lighting are suitable. You can also capture manually or choose from records."],
         ["实时口腔画面", "Live oral view"],
         ["等待设备或照片", "Waiting for a device or photo"],
@@ -6404,6 +6409,9 @@
       );
       const cameraDiagnosticTitle = document.getElementById("camera-diagnostic-title");
       const cameraDiagnosticDetail = document.getElementById("camera-diagnostic-detail");
+      const observeEyebrow = document.getElementById("observe-eyebrow");
+      const observeTitle = document.getElementById("observe-title");
+      const observeSubtitle = document.getElementById("observe-subtitle");
       const captureUsbFrameButton = document.getElementById("capture-usb-frame");
       const resumeUsbPreviewButton = document.getElementById("resume-usb-preview");
       const cameraMeta = document.getElementById("camera-meta");
@@ -6820,6 +6828,13 @@
         for (const button of document.querySelectorAll(".js-connect-device")) {
           button.textContent = setupInProgress ? "取消 Wi‑Fi 配网" : "连接 Wi‑Fi 摄像头";
         }
+        observeEyebrow.textContent = setupInProgress ? "Wi‑Fi 配网中" : "准备观察";
+        observeTitle.textContent = setupInProgress
+          ? "等待移动端接入实时画面"
+          : "先连接 Wi‑Fi 摄像头";
+        observeSubtitle.textContent = setupInProgress
+          ? "请继续在移动端完成视频协议接入。"
+          : "连接后由移动端提供实时画面；也可以先从档案选择照片。";
         captureUsbFrameButton.disabled = true;
         resumeUsbPreviewButton.disabled = true;
         if (!cameraStage.classList.contains("has-photo")) {

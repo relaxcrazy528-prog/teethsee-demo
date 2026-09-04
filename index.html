@@ -5324,6 +5324,10 @@
         ["尚无需要留意的区域", "No areas need attention yet"],
         ["尚无报告", "No reports yet"],
         ["牙齿地图概览", "Tooth map overview"],
+        ["待建档 · 下次观察会优先补充", "Not mapped · The next session will prioritize this tooth"],
+        ["待完成", "To do"],
+        ["尚未覆盖这个牙位", "This tooth is not mapped yet"],
+        ["采集 Agent 将在后续会话继续", "The capture agent will continue in a later session"],
         ["最近扫描：今天", "Last scan: today"],
         ["最近扫描：1 周前", "Last scan: 1 week ago"],
         ["尚未扫描", "Not scanned yet"],
@@ -5805,6 +5809,8 @@
           .replace(/连续\s*(\d+)\s*天/g, "$1-day streak")
           .replace(/(\d+)\s*条证据/g, "$1 evidence items")
           .replace(/(\d+)\s*个牙位/g, "$1 tooth sites")
+          .replace(/已使用\s*(\d+)\s*次观察会话/g, "Used $1 observation sessions")
+          .replace(/本机牙列特征匹配\s*(\d+)%/g, "Local dental-arch match $1%")
           .replace(/(\d+)\s*次观察会话/g, "$1 observation sessions")
           .replace(/Tooth (\d+)已建立长期身份/g, "Long-term identity established for Tooth $1")
           .replace(/(\d+)\s*个事件已归入同一时间线/g, "$1 events linked to the same timeline")

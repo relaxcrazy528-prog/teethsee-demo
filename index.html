@@ -4892,10 +4892,7 @@
                   </div>
                   <div class="message">
                     <span class="message-source">AI 辅助 · 模拟结果 · DEMO DATA</span>
-                    <div id="consult-ai-bubble" class="bubble">
-                      AI 初步判断：疑似牙结石。可见牙齿边缘有较固定的黄褐色附着，建议交由医师进一步确认。
-                      证据：OBS-16-202608-01、OBS-16-202608-02。
-                    </div>
+                    <div id="consult-ai-bubble" class="bubble">AI 初步判断：疑似牙结石。可见牙齿边缘有较固定的黄褐色附着，建议交由医师进一步确认。 证据：OBS-16-202608-01、OBS-16-202608-02。</div>
                     <span class="message-time">7 月 21 日 21:19</span>
                   </div>
                   <div class="message is-doctor">
@@ -5328,6 +5325,10 @@
         ["只有足够清晰的影像才会进入分析。", "Only sufficiently clear images proceed to analysis."],
         ["USB 口腔摄像头实时画面", "Live USB oral camera view"],
         ["上传的口腔照片", "Uploaded oral photo"],
+        ["照片仅在当前浏览器处理", "Photo processed only in this browser"],
+        ["牙结石演示-下前牙-明显.png", "tartar-demo-lower-front-prominent.png"],
+        ["牙结石演示-右上后牙-中度.png", "tartar-demo-upper-right-moderate.png"],
+        ["牙结石演示-左下后牙-局部.png", "tartar-demo-lower-left-localized.png"],
         ["USB 摄像头来源", "USB camera source"],
         ["点击“连接 USB 摄像头”授权后选择", "Authorize the USB camera, then select it here"],
         ["支持被电脑识别为摄像头的 USB 设备；首次连接会请求相机权限。", "Supports USB devices recognized as cameras. Camera permission is requested on first use."],
@@ -5352,6 +5353,8 @@
         ["牙位与区域已确认", "Tooth and area confirmed"],
         ["已确认", "Confirmed"],
         ["AI 已自动定位，请确认候选位置", "AI suggested a location — please confirm"],
+        ["你可以纠错，确认前不会写入档案或日历。", "You can correct the location. Nothing is saved to Records or Calendar before confirmation."],
+        ["事件草稿", "Draft event"],
         ["等待口腔照片", "Waiting for an oral photo"],
         ["拍摄或选择照片后，我们会先检查清晰度与光线。", "After capture or selection, we first check clarity and lighting."],
         ["正在分析你的照片", "Analyzing your photo"],
@@ -5359,6 +5362,9 @@
         ["定位牙齿并匹配历史区域", "Locating the tooth and matching prior areas"],
         ["绑定证据并生成初步报告", "Linking evidence and generating a preliminary report"],
         ["图片质量", "Image quality"],
+        ["清晰度良好，牙齿与牙龈区域可见。", "Clarity is good, with the tooth and gum area visible."],
+        ["整体光线可用于本次演示分析。", "Overall lighting is sufficient for this demo analysis."],
+        ["未发现文件格式或完整性异常。", "No file-format or integrity issues were found."],
         ["可见表现", "Visible findings"],
         ["我们发现了什么", "What we found"],
         ["证据链", "Evidence trail"],
@@ -5425,6 +5431,26 @@
         ["医师只能看到当前事件及你主动选择的历史资料。AI 记录与医院确认记录保持来源区分。", "The dentist can see only this event and history you explicitly select. AI and clinic-confirmed records remain clearly separated."],
         ["分享给医师的内容", "Content shared with the dentist"],
         ["当前原始照片", "Current original photo"],
+        ["已建立长期身份", "Long-term identity established"],
+        ["牙位身份已覆盖，可继续累积不同时间的同区域证据。", "Tooth identity coverage is complete. Evidence from the same area can continue to accumulate over time."],
+        ["仍处于待建档状态，下次观察会优先补充这个位置。", "This tooth is not mapped yet. The next session will prioritize this location."],
+        ["跨期证据尚未形成", "Longitudinal evidence is not available yet"],
+        ["需要至少两次通过质量门的同牙同区域记录，系统才会给出趋势。", "At least two quality-approved records of the same tooth and area are required before a trend can be shown."],
+        ["个事件已归入同一时间线", "events linked to the same timeline"],
+        ["原始照片、AI 模拟结果、用户记录与医院确认记录保持独立来源。", "Original photos, simulated AI results, user records, and clinic-confirmed records retain separate sources."],
+        ["授权后显示名称", "Name shown after permission"],
+        ["已读取设备名称，将优先连接外接 USB 摄像头。", "Device names are available. The external USB camera will be preferred."],
+        ["点击“连接 USB 摄像头”授权后，系统会识别并优先使用外接设备。", "Select Connect USB and grant permission. The external camera will then be detected and preferred."],
+        ["下前牙 · 明显附着", "Lower front teeth · Prominent buildup"],
+        ["D-001 · 牙龈边缘与牙缝区域", "D-001 · Gumline and interdental area"],
+        ["AI 生成的下前牙明显牙结石演示样张", "AI-generated demo image of prominent tartar on the lower front teeth"],
+        ["右上后牙 · 中度附着", "Upper-right posterior teeth · Moderate buildup"],
+        ["D-002 · 牙颈部与邻面区域", "D-002 · Tooth neck and proximal area"],
+        ["AI 生成的右上后牙中度牙结石演示样张", "AI-generated demo image of moderate tartar on the upper-right posterior teeth"],
+        ["左下后牙 · 局部附着", "Lower-left posterior teeth · Localized buildup"],
+        ["D-003 · 磨牙牙龈边缘区域", "D-003 · Molar gumline area"],
+        ["AI 生成的左下后牙局部牙结石演示样张", "AI-generated demo image of localized tartar on the lower-left posterior teeth"],
+        ["DEMO DATA · AI 生成演示", "DEMO DATA · AI-generated demo"],
         ["AI 观察记录", "AI observation"],
         ["已包含", "Included"],
         ["提交给医师查看", "Send to dentist"],
@@ -5682,6 +5708,10 @@
           .replace(/(\d+)\s*条证据/g, "$1 evidence items")
           .replace(/(\d+)\s*个牙位/g, "$1 tooth sites")
           .replace(/(\d+)\s*次观察会话/g, "$1 observation sessions")
+          .replace(/Tooth (\d+)已建立长期身份/g, "Long-term identity established for Tooth $1")
+          .replace(/(\d+)\s*个事件已归入同一时间线/g, "$1 events linked to the same timeline")
+          .replace(/发现\s*(\d+)\s*个摄像头/g, "$1 cameras found")
+          .replace(/摄像头\s*(\d+)\s*（授权后显示名称）/g, "Camera $1 (name shown after permission)")
           .replace(/(\d+)\s*小时/g, "$1 hours")
           .replace(/(\d+)\s*周前/g, "$1 weeks ago");
       }

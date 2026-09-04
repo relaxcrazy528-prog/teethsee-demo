@@ -1146,8 +1146,16 @@
         gap: 5px;
       }
 
-      .camera-source-field label {
+      .camera-source-field label,
+      .camera-source-field strong {
         color: #89a7a2;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .camera-source-model {
+        color: #e7f3f1;
+        font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
         font-size: 12px;
         font-weight: 800;
       }
@@ -4261,7 +4269,7 @@
             <strong>冲牙器样机</strong>
             <span class="device-light js-device-light"></span>
           </div>
-          <p class="js-device-mini-status">USB 与 Wi‑Fi 均未连接</p>
+          <p class="js-device-mini-status">Wi‑Fi 摄像头未连接</p>
         </div>
 
         <div class="profile-mini">
@@ -4358,7 +4366,7 @@
                     <div>
                       <p class="eyebrow">设备</p>
                       <h3>智能冲牙器</h3>
-                      <p class="js-device-status">设备未连接</p>
+                      <p class="js-device-status">Wi‑Fi 摄像头未连接</p>
                     </div>
                     <span class="device-light js-device-light"></span>
                   </div>
@@ -4366,11 +4374,8 @@
                     <div class="flosser-shape" aria-hidden="true"></div>
                   </div>
                   <div class="device-connect-actions">
-                    <button class="secondary-button js-connect-usb" type="button">
-                      连接 USB
-                    </button>
-                    <button class="ghost-button small-button js-connect-device" type="button">
-                      连接 Wi‑Fi
+                    <button class="secondary-button js-connect-device" type="button">
+                      连接 Wi‑Fi 摄像头
                     </button>
                   </div>
                 </section>
@@ -4480,11 +4485,8 @@
                 <p class="view-subtitle">角度和光线合适时自动拍摄，也可以手动拍摄或从档案选择照片。</p>
               </div>
               <div class="button-row">
-                <button class="primary-button js-connect-usb" type="button">
-                  连接 USB
-                </button>
-                <button class="ghost-button js-connect-device" type="button">
-                  连接 Wi‑Fi
+                <button class="primary-button js-connect-device" type="button">
+                  连接 Wi‑Fi 摄像头
                 </button>
                 <button class="secondary-button js-upload-trigger" type="button">从档案选择照片</button>
               </div>
@@ -4512,28 +4514,19 @@
                       autoplay
                       muted
                       playsinline
-                      aria-label="USB 口腔摄像头实时画面"
+                      aria-label="Wi‑Fi 口腔摄像头实时画面"
                     ></video>
                     <img id="capture-preview" class="capture-preview" alt="上传的口腔照片" />
                     <div class="frame-guide" aria-hidden="true"></div>
                   </div>
                   <div class="camera-source-bar">
                     <div class="camera-source-field">
-                      <label for="usb-camera-select">USB 摄像头来源</label>
-                      <select id="usb-camera-select" aria-describedby="usb-camera-help">
-                        <option value="">点击“连接 USB 摄像头”授权后选择</option>
-                      </select>
+                      <strong>Wi‑Fi 摄像头来源</strong>
+                      <span class="camera-source-model">HCSK-352013A-X1-230731</span>
                       <span id="usb-camera-help" class="camera-source-note">
-                        支持被电脑识别为摄像头的 USB 设备；首次连接会请求相机权限。
+                        请使用手机 App 在同一局域网内完成配网；网页不会把模拟状态当作实时画面。
                       </span>
                     </div>
-                    <button
-                      id="refresh-usb-cameras"
-                      class="ghost-button small-button"
-                      type="button"
-                    >
-                      刷新设备
-                    </button>
                   </div>
                   <div
                     id="camera-connection-diagnostic"
@@ -4544,12 +4537,12 @@
                   >
                     <i class="camera-diagnostic-dot" aria-hidden="true"></i>
                     <div class="camera-diagnostic-copy">
-                      <strong id="camera-diagnostic-title">正在检查摄像头环境</strong>
-                      <span id="camera-diagnostic-detail">请保持 USB 设备已连接并供电。</span>
+                      <strong id="camera-diagnostic-title">等待 Wi‑Fi 摄像头配置</strong>
+                      <span id="camera-diagnostic-detail">型号 HCSK-352013A-X1-230731 需要移动端接入真实视频协议。</span>
                     </div>
                   </div>
                   <div class="camera-tools">
-                    <span id="camera-meta" class="camera-meta">设备模式 · 画面未开始</span>
+                    <span id="camera-meta" class="camera-meta">Wi‑Fi 摄像头 · 尚未开始实时画面</span>
                     <div class="camera-actions">
                       <button class="ghost-button small-button js-upload-trigger" type="button">
                         从档案选择
@@ -4559,6 +4552,7 @@
                         class="ghost-button small-button"
                         type="button"
                         disabled
+                        hidden
                       >
                         返回实时画面
                       </button>
@@ -4567,6 +4561,7 @@
                         class="ghost-button small-button capture-button"
                         type="button"
                         disabled
+                        hidden
                       >
                         手动拍摄
                       </button>
@@ -5362,6 +5357,23 @@
         ["智能冲牙器", "Smart water flosser"],
         ["冲牙器样机", "Water flosser prototype"],
         ["设备未连接", "Device not connected"],
+        ["Wi‑Fi 摄像头未连接", "Wi-Fi camera disconnected"],
+        ["连接 Wi‑Fi 摄像头", "Connect Wi-Fi camera"],
+        ["取消 Wi‑Fi 配网", "Cancel Wi-Fi setup"],
+        ["Wi‑Fi 配网待确认", "Wi-Fi setup pending confirmation"],
+        ["Wi‑Fi 配网信息待确认 · 尚未连接实时画面", "Wi-Fi setup details pending confirmation · Live video is not connected"],
+        ["等待 Wi‑Fi 摄像头或照片", "Waiting for a Wi-Fi camera or photo"],
+        ["等待移动端接入实时画面", "Waiting for the mobile app to connect live video"],
+        ["Wi‑Fi 摄像头来源", "Wi-Fi camera source"],
+        ["Wi‑Fi 口腔摄像头实时画面", "Live Wi-Fi oral camera view"],
+        ["请使用手机 App 在同一局域网内完成配网；网页不会把模拟状态当作实时画面。", "Use the mobile app on the same local network to complete setup. This webpage never presents a simulation as live video."],
+        ["等待 Wi‑Fi 摄像头配置", "Waiting for Wi-Fi camera setup"],
+        ["型号 HCSK-352013A-X1-230731 需要移动端接入真实视频协议。", "Model HCSK-352013A-X1-230731 requires the mobile app to connect the real video protocol."],
+        ["Wi‑Fi 摄像头 · 尚未开始实时画面", "Wi-Fi camera · Live video has not started"],
+        ["Wi‑Fi 配网待确认 · 请在移动端接入真实视频流", "Wi-Fi setup pending confirmation · Connect the real video stream in the mobile app"],
+        ["网页不会伪造实时画面。请在移动端为 HCSK-352013A-X1-230731 接入真实视频协议。", "This webpage does not fake live video. Connect the real video protocol for HCSK-352013A-X1-230731 in the mobile app."],
+        ["Wi‑Fi 配网流程已开始，尚未连接真实视频流", "Wi-Fi setup has started. The real video stream is not connected."],
+        ["Wi‑Fi 配网流程已取消", "Wi-Fi setup was cancelled"],
         ["USB 与 Wi‑Fi 均未连接", "USB and Wi-Fi are disconnected"],
         ["连接 USB", "Connect USB"],
         ["断开 USB", "Disconnect USB"],
@@ -6783,54 +6795,37 @@
       }
 
       function updateDeviceUI() {
-        const usbConnected = isUsbCameraConnected();
-        const anyDeviceConnected = usbConnected || wifiDemoConnected;
-        const status = usbConnected
-          ? `USB 摄像头已连接 · ${usbCameraLabel || "实时画面"}`
-          : wifiDemoConnected
-            ? "Wi‑Fi 连接演示已开启"
-            : "设备未连接";
+        const setupInProgress = wifiDemoConnected;
+        const status = setupInProgress
+          ? "Wi‑Fi 配网信息待确认 · 尚未连接实时画面"
+          : "Wi‑Fi 摄像头未连接";
 
         for (const light of document.querySelectorAll(".js-device-light")) {
-          light.classList.toggle("is-online", anyDeviceConnected);
-          light.classList.toggle("is-live", anyDeviceConnected);
+          light.classList.toggle("is-online", setupInProgress);
+          light.classList.remove("is-live");
         }
         for (const item of document.querySelectorAll(".js-device-status")) {
           item.textContent = status;
         }
         for (const item of document.querySelectorAll(".js-device-mini-status")) {
-          item.textContent = usbConnected
-            ? `USB 实时画面 · ${usbCameraLabel || "摄像头"}`
-            : wifiDemoConnected
-              ? "Wi‑Fi 连接流程演示"
-              : "USB 与 Wi‑Fi 均未连接";
+          item.textContent = setupInProgress
+            ? "Wi‑Fi 配网待确认"
+            : "Wi‑Fi 摄像头未连接";
         }
         for (const item of document.querySelectorAll(".js-camera-status")) {
-          item.textContent = usbConnected
-            ? "USB 实时画面"
-            : wifiDemoConnected
-              ? "Wi‑Fi 连接模拟 · 等待真实视频协议"
-              : "等待设备或照片";
+          item.textContent = setupInProgress
+            ? "等待移动端接入实时画面"
+            : "等待 Wi‑Fi 摄像头或照片";
         }
         for (const button of document.querySelectorAll(".js-connect-device")) {
-          button.textContent = wifiDemoConnected ? "断开 Wi‑Fi" : "连接 Wi‑Fi";
+          button.textContent = setupInProgress ? "取消 Wi‑Fi 配网" : "连接 Wi‑Fi 摄像头";
         }
-        for (const button of document.querySelectorAll(".js-connect-usb")) {
-          button.textContent = usbConnected ? "断开 USB" : "连接 USB";
-        }
-        captureUsbFrameButton.disabled = !usbConnected;
-        resumeUsbPreviewButton.disabled =
-          !usbConnected || !cameraStage.classList.contains("has-photo");
-
-        if (usbConnected && !cameraStage.classList.contains("has-photo")) {
-          const settings = usbStream.getVideoTracks()[0]?.getSettings?.() || {};
-          const resolution =
-            settings.width && settings.height ? ` · ${settings.width}×${settings.height}` : "";
-          cameraMeta.textContent = `${usbCameraLabel || "USB 摄像头"}${resolution} · 本机实时画面`;
-        } else if (!cameraStage.classList.contains("has-photo")) {
+        captureUsbFrameButton.disabled = true;
+        resumeUsbPreviewButton.disabled = true;
+        if (!cameraStage.classList.contains("has-photo")) {
           cameraMeta.textContent = wifiDemoConnected
-            ? "Wi‑Fi 连接为演示状态 · 尚未接入真实视频流"
-            : "设备模式 · 画面未开始";
+            ? "Wi‑Fi 配网待确认 · 请在移动端接入真实视频流"
+            : "Wi‑Fi 摄像头 · 尚未开始实时画面";
         }
       }
 
@@ -9129,38 +9124,20 @@
         button.addEventListener("click", () => {
           wifiDemoConnected = !wifiDemoConnected;
           updateDeviceUI();
+          setCameraDiagnostic(
+            wifiDemoConnected ? "warning" : "idle",
+            wifiDemoConnected ? "Wi‑Fi 配网信息待确认" : "等待 Wi‑Fi 摄像头配置",
+            wifiDemoConnected
+              ? "网页不会伪造实时画面。请在移动端为 HCSK-352013A-X1-230731 接入真实视频协议。"
+              : "型号 HCSK-352013A-X1-230731 需要移动端接入真实视频协议。",
+          );
           showToast(
             wifiDemoConnected
-              ? "Wi‑Fi 连接流程演示已开启"
-              : "Wi‑Fi 连接演示已结束",
+              ? "Wi‑Fi 配网流程已开始，尚未连接真实视频流"
+              : "Wi‑Fi 配网流程已取消",
           );
         });
       }
-
-      for (const button of document.querySelectorAll(".js-connect-usb")) {
-        button.addEventListener("click", () => {
-          if (isUsbCameraConnected()) {
-            stopUsbCamera();
-            return;
-          }
-          void connectPreferredUsbCamera();
-        });
-      }
-
-      refreshUsbCamerasButton.addEventListener("click", async () => {
-        const devices = await refreshUsbCameraList();
-        showToast(
-          devices.length > 0
-            ? `发现 ${devices.length} 个摄像头，可选择后连接`
-            : "未发现摄像头，请检查 USB 线和设备供电",
-        );
-      });
-
-      usbCameraSelect.addEventListener("change", () => {
-        if (usbCameraSelect.value) {
-          void startUsbCamera(usbCameraSelect.value, false);
-        }
-      });
 
       captureUsbFrameButton.addEventListener("click", () => {
         void captureUsbFrame();
@@ -9168,11 +9145,6 @@
 
       resumeUsbPreviewButton.addEventListener("click", showUsbLivePreview);
 
-      if (navigator.mediaDevices?.addEventListener) {
-        navigator.mediaDevices.addEventListener("devicechange", () => {
-          void refreshUsbCameraList();
-        });
-      }
 
       for (const button of document.querySelectorAll(".js-upload-trigger")) {
         button.addEventListener("click", () => {
@@ -9440,7 +9412,6 @@
         document.getElementById("reminder-toggle").textContent = reminderPaused
           ? "恢复提醒"
           : "暂停提醒";
-        void refreshUsbCameraList();
         setContextConfirmationState("empty");
         updateReportActions();
       }
